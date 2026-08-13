@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PROG">
+<meta name="theme-color" content="#0A0A0F">
+<title>PROG — Félix</title>
+<style>
+:root {
+  --bg:      #0A0A0F;
+  --card:    #13131A;
+  --card2:   #1C1C26;
+  --border:  #252535;
+  --border2: #2E2E42;
+  --txt:     #F0F0FF;
+  --txt2:    #9090B0;
+  --txt3:    #505068;
+  --neon:    #4FC3F7;
+  --neon2:   #29B6F6;
+  --neon-bg: rgba(79,195,247,0.08);
+  --neon-glow: rgba(79,195,247,0.25);
+  --push:    #FF6B6B;
+  --pull:    #4FC3F7;
+  --leg:     #A78BFA;
+  --bras:    #FB923C;
+  --done:    #34C759;
+  --warn:    #FFB020;
+  --safe-t:  env(safe-area-inset-top,44px);
+  --safe-b:  env(safe-area-inset-bottom,0px);
+  --r:       16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--txt);font-family:-apple-system,"SF Pro Display","Helvetica Neue",sans-serif;min-height:100dvh;overscroll-behavior:none}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100dvh}
+.screen.active{display:block}
+
+/* ── Header ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  padding:var(--safe-t) 20px 14px;
+  background:rgba(10,10,15,.9);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.hdr-title{font-size:22px;font-weight:800;letter-spacing:-1px}
+.hdr-title span{color:var(--neon)}
+.hdr-sub{font-size:11px;color:var(--txt2);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+
+/* Week pill */
+.week-pill{display:flex;align-items:center;gap:4px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;padding:5px 10px}
+.week-pill button{background:none;border:none;color:var(--neon);font-size:16px;cursor:pointer;padding:0 2px;line-height:1}
+.week-label{font-size:11px;font-weight:700;color:var(--neon)}
+
+/* ── Nav bar ── */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  padding:10px 4px;padding-bottom:calc(10px + var(--safe-b));
+  background:rgba(10,10,15,.95);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;
+}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 12px;border-radius:12px;transition:all .2s}
+.nav-btn .nav-icon{font-size:20px;line-height:1}
+.nav-btn .nav-lbl{font-size:9px;font-weight:600;color:var(--txt3);letter-spacing:.4px;text-transform:uppercase}
+.nav-btn.active .nav-lbl{color:var(--neon)}
+.nav-btn.active .nav-icon{filter:drop-shadow(0 0 6px var(--neon))}
+
+/* ── Content wrapper ── */
+.content{padding:16px 16px;padding-bottom:calc(90px + var(--safe-b))}
+
+/* ── Lieu bar ── */
+.lieu-row{display:flex;gap:6px;margin-bottom:16px}
+.lieu-btn{flex:1;padding:9px 4px;border-radius:12px;border:1.5px solid var(--border2);background:var(--card);color:var(--txt3);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.lieu-btn.active{background:var(--card2);border-color:var(--neon);color:var(--neon)}
+
+/* ── Session cards (home) ── */
+.today-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--txt2);margin-bottom:10px}
+.session-card{
+  border-radius:var(--r);border:1px solid var(--border2);
+  background:var(--card);margin-bottom:10px;overflow:hidden;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.session-card:active{transform:scale(.98)}
+.session-card.current{border-color:var(--neon);box-shadow:0 0 0 1px var(--neon),0 4px 24px var(--neon-glow)}
+.session-card.done-card{opacity:.45}
+.sc-inner{display:flex;align-items:center;padding:14px 16px;gap:14px}
+.sc-emoji{font-size:28px;line-height:1}
+.sc-info{flex:1}
+.sc-name{font-size:16px;font-weight:800;letter-spacing:-.4px}
+.sc-sub{font-size:11px;color:var(--txt2);margin-top:2px}
+.sc-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid currentColor}
+.sc-arrow{font-size:18px;color:var(--txt3)}
+.sc-bar{height:3px;background:var(--border)}
+.sc-progress{height:3px;border-radius:3px;transition:width .4s}
+
+/* ── Workout screen ── */
+.workout-hdr{
+  padding:var(--safe-t) 16px 0;
+  background:rgba(10,10,15,.9);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  position:sticky;top:0;z-index:100;
+}
+.wk-top{display:flex;align-items:center;gap:12px;padding:8px 0 14px}
+.back-btn{background:var(--card2);border:1px solid var(--border2);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
+.wk-title{font-size:20px;font-weight:800;letter-spacing:-.5px;flex:1}
+.wk-ring{position:relative;width:42px;height:42px;flex-shrink:0}
+.wk-ring svg{transform:rotate(-90deg)}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+
+/* Warn */
+.warn-box{background:rgba(255,176,32,.06);border:1px solid rgba(255,176,32,.25);border-left:3px solid var(--warn);border-radius:12px;padding:10px 12px;font-size:11px;color:#FFD060;margin-bottom:14px;line-height:1.5}
+
+/* Block label */
+.block-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--txt3);margin:18px 0 8px 2px}
+
+/* Ex card */
+.ex-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;margin-bottom:8px;overflow:hidden;transition:opacity .2s,transform .15s}
+.ex-card.done{opacity:.4}
+.ex-card.done .ex-name{text-decoration:line-through}
+.ex-row{display:flex;align-items:center;padding:13px 14px;gap:12px;cursor:pointer}
+.ex-check{width:26px;height:26px;flex-shrink:0;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;cursor:pointer}
+.ex-card.done .ex-check{background:var(--done);border-color:var(--done);color:#fff}
+.ex-body{flex:1;min-width:0}
+.ex-biset{font-size:9px;font-weight:700;letter-spacing:.8px;color:var(--bras);margin-bottom:2px}
+.ex-name{font-size:14px;font-weight:700;line-height:1.3}
+.ex-sets{font-size:11px;color:var(--txt2);margin-top:2px}
+.ex-wt{font-size:22px;font-weight:900;letter-spacing:-1px;flex-shrink:0;text-align:right;line-height:1}
+.ex-wt small{display:block;font-size:9px;font-weight:500;color:var(--txt2);text-align:right}
+.ex-alt{padding:0 14px 12px 52px;font-size:11px;color:var(--txt3);font-style:italic;display:none}
+.ex-card.expanded .ex-alt{display:block}
+
+/* Perf input row */
+.perf-row{display:flex;gap:8px;padding:0 14px 12px 52px}
+.perf-input{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;color:var(--txt);text-align:center;-webkit-appearance:none}
+.perf-input::placeholder{color:var(--txt3);font-weight:400}
+.rpe-sel{display:flex;gap:4px}
+.rpe-btn{padding:6px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);color:var(--txt3);font-size:11px;font-weight:700;cursor:pointer}
+.rpe-btn.active{border-color:var(--neon);color:var(--neon);background:var(--neon-bg)}
+
+/* WOD */
+.wod-opt{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:13px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.wod-opt.selected{border-color:var(--neon);background:var(--neon-bg)}
+.wod-ico{font-size:24px;flex-shrink:0}
+.wod-info{flex:1}
+.wod-name{font-size:13px;font-weight:700}
+.wod-desc{font-size:11px;color:var(--txt2);margin-top:2px}
+.wod-avail{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* Mobilité toggle */
+.mob-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:13px 16px;cursor:pointer;margin-top:16px;font-size:13px;font-weight:600;color:#C084FC}
+.mob-chev{font-size:11px;transition:transform .3s}
+.mob-toggle.open .mob-chev{transform:rotate(180deg)}
+.mob-items{display:none;margin-top:6px}
+.mob-items.open{display:block}
+.mob-item{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--card);border:1px solid var(--border2);border-radius:10px;margin-bottom:6px}
+.mob-name{font-size:13px;font-weight:600}
+.mob-zone{font-size:10px;color:var(--txt3);margin-top:1px}
+.mob-dur{font-size:11px;font-weight:700;color:#C084FC}
+
+/* Validate btn */
+.validate-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px;padding-bottom:calc(10px + var(--safe-b));background:rgba(10,10,15,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:99}
+.validate-btn{width:100%;padding:16px;border-radius:14px;border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.2px;transition:all .2s}
+.validate-btn:active{transform:scale(.97)}
+
+/* ── History screen ── */
+.hist-empty{text-align:center;padding:60px 20px;color:var(--txt3)}
+.hist-empty .icon{font-size:48px;margin-bottom:12px}
+.hist-date-group{margin-bottom:20px}
+.hist-date-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--txt3);margin-bottom:8px}
+.hist-entry{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.hist-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hist-sess{font-size:15px;font-weight:800}
+.hist-lieu{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;background:var(--card2);color:var(--txt2)}
+.hist-exos{display:flex;flex-direction:column;gap:4px}
+.hist-exo{display:flex;justify-content:space-between;font-size:12px}
+.hist-exo-name{color:var(--txt2)}
+.hist-exo-val{font-weight:700;color:var(--txt)}
+
+/* ── Settings screen ── */
+.settings-section{margin-bottom:24px}
+.settings-title{font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--txt2);margin-bottom:10px;padding:0 2px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:13px 16px;margin-bottom:8px}
+.setting-label{font-size:14px;font-weight:600}
+.setting-sub{font-size:11px;color:var(--txt2);margin-top:2px}
+.setting-val{display:flex;align-items:center;gap:8px}
+.s-btn{background:var(--card2);border:1px solid var(--border2);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--neon);cursor:pointer}
+.s-num{font-size:16px;font-weight:800;color:var(--neon);min-width:44px;text-align:center}
+.s-input{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--txt);width:80px;text-align:center;-webkit-appearance:none}
+
+.ex-edit-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.ex-edit-name{font-size:14px;font-weight:700;margin-bottom:10px}
+.ex-edit-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ex-edit-lbl{font-size:11px;color:var(--txt2)}
+.ex-edit-fields{display:flex;gap:6px}
+.field-group{display:flex;flex-direction:column;align-items:center;gap:2px}
+.field-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px}
+.field-inp{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:6px 8px;font-size:13px;font-weight:700;color:var(--neon);width:64px;text-align:center;-webkit-appearance:none}
+
+.save-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--neon);color:var(--bg);font-size:14px;font-weight:800;cursor:pointer;margin-top:4px}
+
+/* ── Toast ── */
+.toast{position:fixed;top:calc(var(--safe-t) + 68px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--done);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Divider */
+.div{height:1px;background:var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ HOME ══════════════════════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <div class="hdr-title">PROG <span>·</span> Félix</div>
+        <div class="hdr-sub" id="home-date"></div>
+      </div>
+      <div class="hdr-right">
+        <div class="week-pill">
+          <button onclick="changeWeek(-1)">‹</button>
+          <span class="week-label">S<span id="wkNum">1</span></span>
+          <button onclick="changeWeek(1)">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="lieu-row">
+      <button class="lieu-btn" id="lb-HOME" onclick="setLieu('HOME')">🏠 HOME</button>
+      <button class="lieu-btn" id="lb-BUREAU" onclick="setLieu('BUREAU')">🏢 BUREAU</button>
+      <button class="lieu-btn" id="lb-PA" onclick="setLieu('PA')">📍 PA</button>
+    </div>
+    <div class="today-label">MES SÉANCES</div>
+    <div id="session-cards"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ WORKOUT ═══════════════════════════════════ -->
+<div class="screen" id="screen-workout">
+  <div class="workout-hdr" id="wk-hdr">
+    <div class="wk-top">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div class="wk-title" id="wk-title"></div>
+      <div class="wk-ring">
+        <svg width="42" height="42" viewBox="0 0 42 42">
+          <circle class="ring-bg" cx="21" cy="21" r="17" fill="none" stroke="#252535" stroke-width="3"/>
+          <circle id="wk-ring-val" cx="21" cy="21" r="17" fill="none" stroke-width="3" stroke-linecap="round"
+            stroke-dasharray="106.8" stroke-dashoffset="106.8" style="transition:stroke-dashoffset .4s ease"/>
+        </svg>
+        <div class="ring-pct" id="wk-pct">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="content" id="wk-content" style="padding-top:8px;padding-bottom:140px"></div>
+  <div class="validate-bar">
+    <button class="validate-btn" id="validate-btn" onclick="validateSession()"></button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ HISTORY ═══════════════════════════════════ -->
+<div class="screen" id="screen-history">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <div class="hdr-title">Historique</div>
+        <div class="hdr-sub">Toutes tes séances</div>
+      </div>
+      <button onclick="clearHistory()" style="background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer">Effacer</button>
+    </div>
+  </div>
+  <div class="content" id="hist-content"></div>
+</div>
+
+<!-- ═════════════════════════════ SETTINGS ═══════════════════════════════════ -->
+<div class="screen" id="screen-settings">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <div class="hdr-title">⚙ Réglages</div>
+        <div class="hdr-sub">Admin — modifier le programme</div>
+      </div>
+    </div>
+  </div>
+  <div class="content" id="settings-content"></div>
+</div>
+
+<!-- ══════════════════════════════ NAV BAR ═══════════════════════════════════ -->
+<nav class="nav" id="main-nav">
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+    <span class="nav-icon">🏠</span><span class="nav-lbl">Accueil</span>
+  </button>
+  <button class="nav-btn" id="nav-history" onclick="showScreen('history')">
+    <span class="nav-icon">📈</span><span class="nav-lbl">Historique</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
+    <span class="nav-icon">⚙️</span><span class="nav-lbl">Réglages</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DEFAULT DATA
+// ══════════════════════════════════════════════════════════
+const DEFAULT_POIDS = {
+  'Dév. couché':      {HOME:58, BUREAU:58, PA:52, inc:2},
+  'Dév. incliné':     {HOME:46, BUREAU:52, PA:44, inc:1},
+  'Écarté halt.':     {HOME:16, BUREAU:20, PA:16, inc:0.5},
+  'Dév. militaire':   {HOME:26, BUREAU:32, PA:26, inc:1},
+  'Élév. lat.':       {HOME:10, BUREAU:12, PA:10, inc:0.5},
+  'Face pull':        {HOME:18, BUREAU:22, PA:16, inc:1},
+  'Squat barre':      {HOME:60, BUREAU:70, PA:60, inc:2},
+  'Fentes avant':     {HOME:10, BUREAU:14, PA:10, inc:1},
+  'Fentes bulgares':  {HOME:10, BUREAU:14, PA:10, inc:1},
+  'RDL':              {HOME:50, BUREAU:65, PA:50, inc:2},
+  'Good morning':     {HOME:20, BUREAU:24, PA:20, inc:1},
+  'Rowing barre':     {HOME:50, BUREAU:65, PA:50, inc:1.5},
+  'Rowing halt.':     {HOME:22, BUREAU:32, PA:20, inc:1},
+  'Tirage poulie':    {HOME:40, BUREAU:48, PA:38, inc:1},
+  'Curl EZ':          {HOME:28, BUREAU:34, PA:26, inc:1},
+  'Curl marteau':     {HOME:12, BUREAU:16, PA:12, inc:0.5},
+  'Skull crusher EZ': {HOME:20, BUREAU:24, PA:20, inc:0.5},
+  'Ext. triceps':     {HOME:14, BUREAU:18, PA:14, inc:0.5},
+};
+
+const DEFAULT_SESSIONS = {
+  push: {
+    label:'PUSH', emoji:'🔴', color:'var(--push)', accent:'#FF6B6B',
+    sub:'Poitrine · Épaules',
+    warn:'⚠ Épaule G — Face pull AVANT le bench · −15% si douleur',
+    blocks:[
+      {label:'POITRINE', exos:[
+        {name:'Dév. couché',    sets:'4×8-10',  key:'Dév. couché',    alt:'Haltères si épaule sensible'},
+        {name:'Dév. incliné',   sets:'3×10-12', key:'Dév. incliné',   alt:'Machine inclinée (Bureau)'},
+        {name:'Écarté halt.',   sets:'3×12-15', key:'Écarté halt.',    alt:'Pec deck / Cable crossover'},
+      ]},
+      {label:'ÉPAULES', exos:[
+        {name:'Dév. militaire', sets:'3×10-12', key:'Dév. militaire', alt:'Arnold press / Machine'},
+        {name:'Élév. lat.',     sets:'4×12-15', key:'Élév. lat.',      alt:'Cable latéral unilatéral'},
+        {name:'BiSet — Face pull + Oiseau', sets:'3×(12+12)', key:'Face pull', biset:true, alt:'Band pull-apart si pas de poulie'},
+      ]},
+    ]
+  },
+  pull: {
+    label:'PULL', emoji:'🟢', color:'var(--pull)', accent:'#4FC3F7',
+    sub:'Dos · Abdos · Cou 🐂',
+    warn:null,
+    blocks:[
+      {label:'ÉCHAUFFEMENT', exos:[
+        {name:'Good morning', sets:'2×15 léger', key:'Good morning', alt:'Superman / Hyperextension'},
+      ]},
+      {label:'DOS', exos:[
+        {name:'Tractions — EMOM ou lestées', sets:'EMOM 10 min', bw:true, alt:'Tirage poulie · Supination si épaule'},
+        {name:'Rowing (barre ou halt.)', sets:'4×8-10', key:'Rowing barre', alt:'HOME barre · BUREAU poulie basse · PA halt.'},
+        {name:'Tirage poulie haute', sets:'3×10-12', key:'Tirage poulie', alt:'Tractions supination si pas de poulie'},
+      ]},
+      {label:'ABDOS', exos:[
+        {name:'Crunch lesté',       sets:'4×15-20', bw:true, alt:'Cable crunch (Bureau)'},
+        {name:'Relevé de jambes',   sets:'3×15',    bw:true, alt:'Sol si pas de barre'},
+        {name:'Gainage planche',    sets:'3×45s',   bw:true, alt:'Gainage latéral / Dead bug'},
+      ]},
+      {label:'COU 🐂', exos:[
+        {name:'Flexion + Extension cou', sets:'3×15 chaque', bw:true, alt:'Harnais si dispo'},
+        {name:'Latéral cou',   sets:'2×12/côté', bw:true, alt:'Résistance manuelle'},
+        {name:'Shrugs',        sets:'3×15', key:'Rowing halt.', alt:'Barre / KB Bureau'},
+      ]},
+    ]
+  },
+  leg: {
+    label:'LEG', emoji:'🔵', color:'var(--leg)', accent:'#A78BFA',
+    sub:'Quad · Ischio · Fessiers · Adducteurs',
+    warn:'⏱ Vélo 10 min avant · Post-ménisque : excentrique lent',
+    blocks:[
+      {label:'ÉCHAUFFEMENT', exos:[
+        {name:'Vélo 10 min', sets:'Intensité modérée', bw:true, alt:'Rameur 8 min'},
+      ]},
+      {label:'QUAD — LOURD', exos:[
+        {name:'Squat barre', sets:'4×8-10', key:'Squat barre', alt:'Belt squat (Bureau uniquement)'},
+      ]},
+      {label:'QUAD — ACCESSOIRES', exos:[
+        {name:'Fentes avant',  sets:'3×10/jambe', key:'Fentes avant',  alt:'Fentes marchées / Step-up'},
+        {name:'Box jump',      sets:'4×8',         bw:true,            alt:'Step-up lesté si genou sensible'},
+      ]},
+      {label:'ISCHIO / FESSIERS', exos:[
+        {name:'RDL',            sets:'4×10-12',    key:'RDL',           alt:'Leg curl machine (Bureau)'},
+        {name:'Fentes bulgares',sets:'3×10/jambe', key:'Fentes bulgares',alt:'Step-up lesté'},
+      ]},
+      {label:'ADDUCTEURS + MOLLETS', exos:[
+        {name:'Adducteur / élastique', sets:'3×15-20', bw:true, alt:'Machine Bureau · Sumo squat'},
+        {name:'Mollets',               sets:'4×20',     bw:true, alt:'Chargés si possible'},
+      ]},
+    ]
+  },
+  bras: {
+    label:'BRAS + WOD', emoji:'💪', color:'var(--bras)', accent:'#FB923C',
+    sub:'Biceps · Triceps (2 BiSets) → WOD',
+    warn:null,
+    blocks:[
+      {label:'BISET 1 — alterner sans repos', exos:[
+        {name:'A1 — Curl EZ allongé',    sets:'4×10-12', key:'Curl EZ',          biset:true, alt:'Curl halt. incliné'},
+        {name:'A2 — Skull crusher EZ',   sets:'4×10-12', key:'Skull crusher EZ', biset:true, alt:'Triceps poulie (Bureau)'},
+      ]},
+      {label:'BISET 2', exos:[
+        {name:'B1 — Curl marteau',       sets:'3×10-12', key:'Curl marteau', biset:true, alt:'Curl câble (Bureau)'},
+        {name:'B2 — Ext. triceps halt.', sets:'3×12-15', key:'Ext. triceps', biset:true, alt:'Dips lestés (Bureau)'},
+      ]},
+    ],
+    wod:[
+      {icon:'🚣',name:'Rameur',       desc:'4×4 min / 2 min repos · ~500m pace modéré', avail:'Bureau'},
+      {icon:'🚴',name:'Vélo',         desc:'5×3 min / 90s repos · 80-90 RPM',           avail:'Bureau ou PA'},
+      {icon:'⛷️',name:'Skierg',       desc:'6×250m / 90s repos · cible <1\'10\"',       avail:'Bureau'},
+      {icon:'🔄',name:'AMRAP Cindy',  desc:'20 min · 5 tractions · 10 pompes · 15 squats — 15+ rounds', avail:'Partout'},
+      {icon:'⚡',name:'EMOM 12 min',  desc:'Impaires : 8 tractions · Paires : 10 pompes diamant',        avail:'Partout'},
+    ]
+  }
+};
+
+const ORDER = ['push','pull','leg','bras'];
+
+const MOBILITE = [
+  {name:'Pigeon au sol',        dur:'45s/côté', zone:'Fessier + hanche — priorité post-ménisque'},
+  {name:'Étirement ischio',     dur:'35s/côté', zone:'Ischios · jambe tendue sur banc'},
+  {name:'Cat-cow',              dur:'10 reps',  zone:'Lombaires · lent, respire'},
+  {name:"Child's pose",         dur:'45s',      zone:'Lombaires + dos'},
+  {name:'Hip flexor lunge',     dur:'30s/côté', zone:'Fléchisseurs de hanche'},
+  {name:'Rotation thoracique',  dur:'8/côté',   zone:'Colonne · genoux fléchis, lent'},
+  {name:'Extensions lombaires', dur:'3×15',     zone:'Lombaires · banc déclinaison'},
+];
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let S = {
+  lieu:'HOME', week:1, currentWorkout:null,
+  sessionDone:{},          // {sid: bool}
+  exDone:{},               // {sid: {idx: bool}}
+  perf:{},                 // {sid: {idx: {kg:'', rpe:''}}}
+  selectedWod:null, mobOpen:false,
+  poids: JSON.parse(JSON.stringify(DEFAULT_POIDS)),
+  history:[],              // [{date, sid, lieu, week, exos:[{name,kg,rpe}]}]
+};
+
+function save(){ try{localStorage.setItem('prog2',JSON.stringify(S))}catch(e){} }
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('prog2'));
+    if(d){
+      // merge poids so new keys from defaults get added
+      const p = Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_POIDS)), d.poids||{});
+      S={...S,...d, poids:p};
+    }
+  }catch(e){}
+}
+
+function getPoids(key, lieu, week){
+  const e = S.poids[key]; if(!e) return null;
+  const base = e[lieu] || 0; if(!base) return null;
+  return Math.round(base + (week-1)*(e.inc||0));
+}
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+let activeScreen = 'home';
+function showScreen(id){
+  // hide workout-specific nav if going to workout
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const nb = document.getElementById('nav-'+id);
+  if(nb) nb.classList.add('active');
+  document.getElementById('main-nav').style.display = 'flex';
+  activeScreen = id;
+  if(id==='home') renderHome();
+  if(id==='history') renderHistory();
+  if(id==='settings') renderSettings();
+}
+
+function openWorkout(sid){
+  S.currentWorkout = sid;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-workout').classList.add('active');
+  document.getElementById('main-nav').style.display = 'none';
+  renderWorkout();
+}
+function goHome(){ showScreen('home'); }
+
+// ══════════════════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════════════════
+function renderHome(){
+  // Date
+  const opts={weekday:'long',day:'numeric',month:'long'};
+  document.getElementById('home-date').textContent =
+    new Date().toLocaleDateString('fr-FR',opts);
+  document.getElementById('wkNum').textContent = S.week;
+
+  // Lieu btns
+  ['HOME','BUREAU','PA'].forEach(l=>{
+    const b=document.getElementById('lb-'+l);
+    b.classList.toggle('active', S.lieu===l);
+  });
+
+  // Session cards
+  const con = document.getElementById('session-cards');
+  const nextSid = ORDER.find(s=>!S.sessionDone[s]) || ORDER[0];
+  let html='';
+
+  ORDER.forEach(sid=>{
+    const sess = DEFAULT_SESSIONS[sid];
+    const done = !!S.sessionDone[sid];
+    const isCurrent = sid===nextSid;
+    const exDoneMap = S.exDone[sid]||{};
+    const allExos = sess.blocks.flatMap(b=>b.exos);
+    const doneCount = allExos.filter((_,i)=>exDoneMap[i]).length;
+    const pct = allExos.length ? Math.round(doneCount/allExos.length*100) : 0;
+
+    const badgeColor = done ? 'var(--done)' : (isCurrent ? sess.accent : 'var(--txt3)');
+    const badgeText  = done ? '✓ Fait' : (isCurrent ? '→ Maintenant' : 'À venir');
+
+    html+=`
+    <div class="session-card${done?' done-card':''}${isCurrent?' current':''}"
+         onclick="openWorkout('${sid}')">
+      <div class="sc-inner">
+        <div class="sc-emoji">${sess.emoji}</div>
+        <div class="sc-info">
+          <div class="sc-name" style="color:${sess.accent}">${sess.label}</div>
+          <div class="sc-sub">${sess.sub}</div>
+        </div>
+        <div class="sc-badge" style="color:${badgeColor};border-color:${badgeColor}">${badgeText}</div>
+        <div class="sc-arrow">›</div>
+      </div>
+      <div class="sc-bar"><div class="sc-progress" style="width:${pct}%;background:${sess.accent}"></div></div>
+    </div>`;
+  });
+  con.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
+// WORKOUT
+// ══════════════════════════════════════════════════════════
+function renderWorkout(){
+  const sid = S.currentWorkout;
+  const sess = DEFAULT_SESSIONS[sid];
+  const doneMap = S.exDone[sid]||{};
+  const perfMap = S.perf[sid]||{};
+  const allExos = sess.blocks.flatMap(b=>b.exos);
+  const doneCount = allExos.filter((_,i)=>doneMap[i]).length;
+  const total = allExos.length;
+  const pct = total ? Math.round(doneCount/total*100) : 0;
+  const circ = 2*Math.PI*17;
+  const offset = circ - (pct/100)*circ;
+
+  // Header
+  document.getElementById('wk-title').textContent = `${sess.emoji} ${sess.label}`;
+  document.getElementById('wk-title').style.color = sess.accent;
+  const rv = document.getElementById('wk-ring-val');
+  rv.style.stroke = sess.accent;
+  rv.setAttribute('stroke-dashoffset', offset);
+  document.getElementById('wk-pct').textContent = pct+'%';
+  document.getElementById('wk-pct').style.color = sess.accent;
+
+  // Validate btn
+  const vb = document.getElementById('validate-btn');
+  const isDone = !!S.sessionDone[sid];
+  if(isDone){
+    vb.style.background='var(--card2)';
+    vb.style.color='var(--done)';
+    vb.style.border='1.5px solid var(--done)';
+    vb.textContent='✓ Validée — Séance suivante →';
+  } else {
+    vb.style.background=sess.accent;
+    vb.style.color='#0A0A0F';
+    vb.style.border='none';
+    vb.textContent=`Valider ${sess.emoji} ${sess.label}`;
+  }
+
+  // Content
+  let html='';
+  if(sess.warn) html+=`<div class="warn-box">${sess.warn}</div>`;
+
+  let gi=0;
+  for(const block of sess.blocks){
+    html+=`<div class="block-lbl">${block.label}</div>`;
+    for(const exo of block.exos){
+      const idx=gi++;
+      const done=!!doneMap[idx];
+      const pf = perfMap[idx]||{kg:'',rpe:''};
+      const wt = exo.key ? getPoids(exo.key,S.lieu,S.week) : null;
+      const wtStr = wt ? wt : (exo.bw?'PC':'—');
+      const wtColor = wt ? sess.accent : 'var(--txt3)';
+
+      html+=`
+      <div class="ex-card${done?' done':''}" id="ex-${idx}">
+        <div class="ex-row" onclick="toggleExpand(${idx})">
+          <div class="ex-check" onclick="event.stopPropagation();toggleExo(${idx})">${done?'✓':''}</div>
+          <div class="ex-body">
+            ${exo.biset?'<div class="ex-biset">BISET</div>':''}
+            <div class="ex-name">${exo.name}</div>
+            <div class="ex-sets">${exo.sets}</div>
+          </div>
+          <div class="ex-wt" style="color:${wtColor}">${wtStr}${wt?'<small>kg</small>':''}</div>
+        </div>
+        <div class="ex-alt">↗ ${exo.alt}</div>
+        <div class="perf-row">
+          <input class="perf-input" type="number" placeholder="kg réel"
+            value="${pf.kg}" onchange="savePerf(${idx},'kg',this.value)" inputmode="decimal">
+          <div class="rpe-sel">
+            ${[6,7,8,9,10].map(r=>`<div class="rpe-btn${pf.rpe==r?' active':''}"
+              onclick="savePerf(${idx},'rpe',${r})">${r}</div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
+  // WOD
+  if(sess.wod){
+    html+=`<div class="block-lbl">WOD / ERGO — choisir</div>`;
+    sess.wod.forEach((w,i)=>{
+      const sel=S.selectedWod===i;
+      html+=`<div class="wod-opt${sel?' selected':''}" onclick="selWod(${i})">
+        <span class="wod-ico">${w.icon}</span>
+        <div class="wod-info">
+          <div class="wod-name">${w.name}</div>
+          <div class="wod-desc">${w.desc}</div>
+          <div class="wod-avail">📍 ${w.avail}</div>
+        </div>
+        ${sel?'<span style="color:var(--neon)">✓</span>':''}
+      </div>`;
+    });
+  }
+
+  // Mobilité
+  html+=`
+  <div class="mob-toggle${S.mobOpen?' open':''}" onclick="toggleMob()">
+    <span>🧘 Mobilité du jour</span>
+    <span class="mob-chev">▲</span>
+  </div>
+  <div class="mob-items${S.mobOpen?' open':''}">
+    ${MOBILITE.map(m=>`
+    <div class="mob-item">
+      <div><div class="mob-name">${m.name}</div><div class="mob-zone">${m.zone}</div></div>
+      <div class="mob-dur">${m.dur}</div>
+    </div>`).join('')}
+  </div>`;
+
+  document.getElementById('wk-content').innerHTML = html;
+}
+
+function toggleExpand(idx){
+  const c=document.getElementById('ex-'+idx);
+  if(c) c.classList.toggle('expanded');
+}
+
+function toggleExo(idx){
+  const sid=S.currentWorkout;
+  if(!S.exDone[sid]) S.exDone[sid]={};
+  S.exDone[sid][idx] = !S.exDone[sid][idx];
+  save(); renderWorkout();
+}
+
+function savePerf(idx,field,val){
+  const sid=S.currentWorkout;
+  if(!S.perf[sid]) S.perf[sid]={};
+  if(!S.perf[sid][idx]) S.perf[sid][idx]={kg:'',rpe:''};
+  S.perf[sid][idx][field]=val;
+  save(); renderWorkout();
+}
+
+function selWod(i){ S.selectedWod = S.selectedWod===i?null:i; save(); renderWorkout(); }
+function toggleMob(){ S.mobOpen=!S.mobOpen; save(); renderWorkout(); }
+
+function validateSession(){
+  const sid=S.currentWorkout;
+  if(S.sessionDone[sid]){
+    // Go to next
+    const idx=ORDER.indexOf(sid);
+    const next=ORDER[(idx+1)%ORDER.length];
+    if(next===ORDER[0]){
+      showToast('🏆 Cycle complet ! Semaine '+(S.week+1));
+      S.week=Math.min(10,S.week+1);
+      S.sessionDone={}; S.exDone={}; S.perf={};
+    } else {
+      showToast(`→ ${DEFAULT_SESSIONS[next].emoji} ${DEFAULT_SESSIONS[next].label}`);
+    }
+    S.currentWorkout=next;
+    save(); renderWorkout(); return;
+  }
+  // Mark done + save history
+  S.sessionDone[sid]=true;
+  const allExos=DEFAULT_SESSIONS[sid].blocks.flatMap(b=>b.exos);
+  if(!S.exDone[sid]) S.exDone[sid]={};
+  allExos.forEach((_,i)=>{if(!S.exDone[sid][i]) S.exDone[sid][i]=true;});
+  // History entry
+  const entry={
+    date: new Date().toISOString(),
+    sid, lieu:S.lieu, week:S.week,
+    label:`${DEFAULT_SESSIONS[sid].emoji} ${DEFAULT_SESSIONS[sid].label}`,
+    exos: allExos.map((ex,i)=>({
+      name:ex.name,
+      kg:(S.perf[sid]&&S.perf[sid][i])?S.perf[sid][i].kg:'',
+      rpe:(S.perf[sid]&&S.perf[sid][i])?S.perf[sid][i].rpe:'',
+    }))
+  };
+  S.history.unshift(entry);
+  showToast(`✓ ${DEFAULT_SESSIONS[sid].label} validée !`);
+  save(); renderWorkout();
+}
+
+// ══════════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════════
+function renderHistory(){
+  const con=document.getElementById('hist-content');
+  if(!S.history.length){
+    con.innerHTML=`<div class="hist-empty"><div class="icon">📈</div><div>Aucune séance encore.<br>Valide ta première séance !</div></div>`;
+    return;
+  }
+  // group by date
+  const groups={};
+  S.history.forEach(e=>{
+    const d=new Date(e.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    if(!groups[d]) groups[d]=[];
+    groups[d].push(e);
+  });
+  let html='';
+  for(const [date,entries] of Object.entries(groups)){
+    html+=`<div class="hist-date-label">${date}</div>`;
+    entries.forEach(e=>{
+      const sess=DEFAULT_SESSIONS[e.sid];
+      html+=`<div class="hist-entry">
+        <div class="hist-top">
+          <div class="hist-sess" style="color:${sess.accent}">${e.label}</div>
+          <div class="hist-lieu">${e.lieu} · S${e.week}</div>
+        </div>
+        <div class="hist-exos">
+          ${e.exos.filter(x=>x.kg||x.rpe).map(x=>`
+          <div class="hist-exo">
+            <span class="hist-exo-name">${x.name}</span>
+            <span class="hist-exo-val">${x.kg?x.kg+'kg':''}${x.kg&&x.rpe?' · ':''}${x.rpe?'RPE '+x.rpe:''}</span>
+          </div>`).join('')}
+          ${e.exos.filter(x=>x.kg||x.rpe).length===0?'<div style="font-size:11px;color:var(--txt3)">Aucune perf saisie</div>':''}
+        </div>
+      </div>`;
+    });
+  }
+  con.innerHTML=html;
+}
+
+function clearHistory(){
+  if(confirm('Effacer tout l\'historique ?')){ S.history=[]; save(); renderHistory(); }
+}
+
+// ══════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════
+function renderSettings(){
+  let html=`
+  <div class="settings-section">
+    <div class="settings-title">Programme</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Semaine en cours</div><div class="setting-sub">1 → 10 (progression automatique)</div></div>
+      <div class="setting-val">
+        <div class="s-btn" onclick="adjWeek(-1)">−</div>
+        <div class="s-num" id="s-week">${S.week}</div>
+        <div class="s-btn" onclick="adjWeek(1)">+</div>
+      </div>
+    </div>
+    <div class="setting-row" style="cursor:pointer" onclick="resetProg()">
+      <div><div class="setting-label">Réinitialiser le cycle</div><div class="setting-sub">Remet toutes les séances à "À faire"</div></div>
+      <div style="color:var(--txt3)">›</div>
+    </div>
+  </div>
+
+  <div class="div"></div>
+
+  <div class="settings-section">
+    <div class="settings-title">Poids par exercice</div>
+    <div class="setting-sub" style="margin-bottom:10px;padding:0 2px;font-size:11px;color:var(--txt3)">
+      Modifie les poids de départ (S1) et l'incrément hebdomadaire pour chaque lieu.
+    </div>`;
+
+  Object.entries(S.poids).forEach(([name,vals])=>{
+    html+=`
+    <div class="ex-edit-card">
+      <div class="ex-edit-name">${name}</div>
+      <div class="ex-edit-row">
+        <span class="ex-edit-lbl">HOME · BUREAU · PA · Inc/sem</span>
+        <div class="ex-edit-fields">
+          ${['HOME','BUREAU','PA','inc'].map(f=>`
+          <div class="field-group">
+            <span class="field-lbl">${f==='inc'?'INC':f}</span>
+            <input class="field-inp" type="number" value="${vals[f]||0}"
+              onchange="updatePoids('${name}','${f}',this.value)" inputmode="decimal">
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html+=`</div>
+  <div class="div"></div>
+  <div class="settings-section">
+    <div class="settings-title">Remise à zéro</div>
+    <div class="setting-row" style="cursor:pointer" onclick="resetPoids()">
+      <div><div class="setting-label">Remettre les poids par défaut</div><div class="setting-sub">Annule toutes les modifications</div></div>
+      <div style="color:var(--txt3)">›</div>
+    </div>
+  </div>`;
+
+  document.getElementById('settings-content').innerHTML=html;
+}
+
+function adjWeek(d){
+  S.week=Math.max(1,Math.min(10,S.week+d));
+  document.getElementById('s-week').textContent=S.week;
+  document.getElementById('wkNum').textContent=S.week;
+  save();
+}
+function updatePoids(name,field,val){
+  if(!S.poids[name]) S.poids[name]={};
+  S.poids[name][field]=parseFloat(val)||0;
+  save();
+}
+function resetPoids(){
+  if(confirm('Remettre tous les poids par défaut ?')){
+    S.poids=JSON.parse(JSON.stringify(DEFAULT_POIDS));
+    save(); renderSettings(); showToast('Poids réinitialisés');
+  }
+}
+function resetProg(){
+  if(confirm('Remettre toutes les séances à "À faire" ?')){
+    S.sessionDone={}; S.exDone={}; S.perf={};
+    save(); showToast('Cycle réinitialisé ✓');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════
+function setLieu(l){ S.lieu=l; save(); renderHome(); }
+function changeWeek(d){ S.week=Math.max(1,Math.min(10,S.week+d)); save(); renderHome(); }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+load();
+const nextUndone=ORDER.find(s=>!S.sessionDone[s]);
+renderHome();
+</script>
+</body>
+</html>
