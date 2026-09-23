@@ -645,8 +645,9 @@ label.check input{width:auto;margin:0;margin-top:2px;flex-shrink:0}
           <span class="field-label">Année du planning</span>
           <select id="pYear" onchange="changeYear()">
             <option value="2024">2024</option>
-            <option value="2025" selected>2025</option>
-            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
           </select>
         </div>
       </div>
@@ -806,6 +807,8 @@ try {
   const stored = localStorage.getItem(KEY);
   if (stored) DATA = { ...DATA, ...JSON.parse(stored) };
   if (!DATA.planning) DATA.planning = {};
+  if (!DATA.profil) DATA.profil = {};
+  if (!DATA.profil.year) DATA.profil.year = new Date().getFullYear();
 } catch(e) {}
 
 function save() {
@@ -903,7 +906,7 @@ const LABELS_TYPE = { jour:'12h Jour', nuit:'12h Nuit', h24:'24h', maison:'Maiso
 const ICONS_TYPE = { jour:'🌤', nuit:'🌙', h24:'⚡', maison:'🏠' };
 
 let currentPlanMonth = new Date().getMonth();
-let currentPlanYear = new Date().getFullYear();
+let currentPlanYear = (DATA.profil && DATA.profil.year) || new Date().getFullYear();
 let selectedDay = null;
 let bulkWeek = { 0:'maison', 1:'maison', 2:'maison', 3:'maison', 4:'maison', 5:'maison', 6:'maison' };
 
@@ -951,13 +954,21 @@ function renderCalendar() {
 function prevMonth() {
   currentPlanMonth--;
   if (currentPlanMonth < 0) { currentPlanMonth = 11; currentPlanYear--; }
+  DATA.profil.year = currentPlanYear;
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  if (document.getElementById('pYear')) document.getElementById('pYear').value = currentPlanYear;
   renderCalendar();
+  refresh();
 }
 
 function nextMonth() {
   currentPlanMonth++;
   if (currentPlanMonth > 11) { currentPlanMonth = 0; currentPlanYear++; }
+  DATA.profil.year = currentPlanYear;
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  if (document.getElementById('pYear')) document.getElementById('pYear').value = currentPlanYear;
   renderCalendar();
+  refresh();
 }
 
 function openPlanModal(day) {
@@ -1018,10 +1029,10 @@ function clearAll() {
 }
 
 function refreshPlanningStats() {
-  const year = DATA.profil.year || currentPlanYear;
+  const year = String(DATA.profil.year || currentPlanYear || new Date().getFullYear());
   let travaille = 0, repas = 0, nuit = 0, h24 = 0;
   Object.keys(DATA.planning).forEach(k => {
-    if (!k.startsWith(String(year))) return;
+    if (!k.startsWith(year)) return;
     const t = DATA.planning[k];
     if (t && t !== 'maison') travaille++;
     if (t === 'nuit') { repas += 1; nuit++; }
@@ -1036,10 +1047,10 @@ function refreshPlanningStats() {
 }
 
 function calculerRepasAnnee() {
-  const year = DATA.profil.year || new Date().getFullYear();
+  const year = String(DATA.profil.year || currentPlanYear || new Date().getFullYear());
   let repas = 0;
   Object.keys(DATA.planning).forEach(k => {
-    if (!k.startsWith(String(year))) return;
+    if (!k.startsWith(year)) return;
     repas += REPAS_PAR_TYPE[DATA.planning[k]] || 0;
   });
   return repas;
