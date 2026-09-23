@@ -2,1054 +2,1654 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="PROG">
-<meta name="theme-color" content="#0A0A0F">
-<title>PROG — Félix</title>
+<title>MonImpôt — Assistant fiscal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0A0A0F;
-  --card:#111116;
-  --card2:#18181F;
-  --card3:#202028;
-  --border:#222230;
-  --border2:#2C2C3A;
-  --txt:#ECECF4;
-  --txt2:#8080A0;
-  --txt3:#404058;
-  --accent:#FFFFFF;
-  --accent-dim:#606070;
-  --done:#4CAF50;
-  --warn:#E0A020;
-  --safe-t:env(safe-area-inset-top,44px);
-  --safe-b:env(safe-area-inset-bottom,0px);
+  --paper:#f5f0e6; --paper-2:#faf6ed; --surface:#ffffff;
+  --border:#d9d1c1; --border-soft:#e8e2d4;
+  --ink:#1a1f2e; --ink-2:#2c3547; --muted:#6b6558;
+  --navy:#1e3a5f; --navy-2:#2c4f7c;
+  --gold:#8b6f3d; --burgundy:#8b2635; --forest:#3d6b4c; --amber:#b58a3d; --sky:#3d6b8b;
+  /* Codes planning */
+  --p-jour:#a68a4f; --p-nuit:#2c4f7c; --p-24h:#8b2635; --p-maison:#e8e2d4;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{background:var(--bg);color:var(--txt);font-family:-apple-system,"SF Pro Display","Helvetica Neue",sans-serif;min-height:100dvh;overscroll-behavior:none}
-.screen{display:none;min-height:100dvh}.screen.active{display:block}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',-apple-system,sans-serif;min-height:100vh;font-weight:400;line-height:1.55;-webkit-font-smoothing:antialiased}
 
-/* ── Header ── */
-.hdr{position:sticky;top:0;z-index:100;padding:var(--safe-t) 20px 12px;background:rgba(10,10,15,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
-.hdr-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-.hdr-title{font-size:20px;font-weight:800;letter-spacing:-1px;color:var(--txt)}
-.hdr-dot{color:var(--txt3)}
-.hdr-sub{font-size:11px;color:var(--txt3);margin-top:1px}
-.week-pill{display:flex;align-items:center;gap:4px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;padding:5px 10px}
-.week-pill button{background:none;border:none;color:var(--txt2);font-size:16px;cursor:pointer;padding:0 2px;line-height:1}
-.week-label{font-size:11px;font-weight:700;color:var(--txt2)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.brand{font-family:'Playfair Display',serif;font-weight:700;font-size:22px;letter-spacing:-.01em;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+.brand em{font-style:italic;color:var(--gold);font-weight:600}
+.brand-tag{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:500;padding-left:10px;border-left:1px solid var(--border);margin-left:4px}
+.year-badge{font-size:11px;color:var(--muted)}
+.year-badge strong{color:var(--ink);font-weight:600}
 
-/* ── Lieu scroller ── */
-.lieu-scroll-wrap{
-  overflow:hidden;
-  border-bottom:1px solid var(--border);
-  background:var(--bg);
-  position:sticky;top:calc(var(--safe-t) + 56px);
-  z-index:99;
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;overflow-x:auto;position:sticky;top:53px;z-index:99;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:14px 16px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:600}
+
+.page{display:none;padding:28px 22px 60px;max-width:1000px;margin:0 auto}
+.page.active{display:block}
+
+.section-num{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-weight:600;font-size:16px;margin-right:8px}
+h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:6px}
+h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:-.01em;margin-bottom:18px;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px}
+h2 .progress-count{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:var(--muted);margin-left:10px}
+h3{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--navy);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border-soft)}
+.section{margin-bottom:36px}
+.section-intro{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:18px}
+
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:32px;margin-bottom:26px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--navy)}
+.hero-label{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;font-weight:600}
+.hero-amount{font-family:'Playfair Display',serif;font-size:56px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:8px;letter-spacing:-.03em}
+.hero-sub{font-size:14px;color:var(--muted);font-style:italic}
+.countdown{display:inline-block;margin-top:18px;padding:8px 14px;background:var(--paper-2);border:1px solid var(--border-soft);border-radius:2px;font-size:12px;color:var(--ink-2)}
+.countdown strong{color:var(--navy);font-weight:600}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:20px 22px}
+.card-label{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.card-value{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px;color:var(--ink);letter-spacing:-.01em}
+.card-sub{font-size:12px;color:var(--muted)}
+.card-value.g{color:var(--forest)} .card-value.d{color:var(--gold)} .card-value.n{color:var(--navy)}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.field-hint{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;line-height:1.5}
+input,select,textarea{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:12px 14px;color:var(--ink);font-family:'Inter',sans-serif;font-size:16px;outline:none;transition:all .15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(30,58,95,.08)}
+textarea{resize:vertical;min-height:80px}
+input[type=file]{padding:9px;font-size:14px}
+label.check{display:flex;align-items:flex-start;gap:10px;font-size:14px;cursor:pointer;padding:8px 0;line-height:1.5}
+label.check input{width:auto;margin:0;margin-top:2px;flex-shrink:0}
+
+.btn{background:var(--navy);color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:12px 22px;border:1px solid var(--navy);border-radius:2px;cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.btn:hover{background:var(--navy-2);border-color:var(--navy-2)}
+.btn.secondary{background:var(--surface);color:var(--ink);border:1px solid var(--border)}
+.btn.secondary:hover{background:var(--paper-2)}
+.btn.danger{background:transparent;color:var(--burgundy);border:1px solid var(--burgundy)}
+.btn.danger:hover{background:rgba(139,38,53,.08)}
+.btn.small{font-size:11px;padding:6px 12px}
+
+.item{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px}
+.item-icon{width:40px;height:40px;background:var(--paper-2);border:1px solid var(--border-soft);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:14px;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-meta{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.item-amount{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--navy);white-space:nowrap;letter-spacing:-.01em}
+.item-actions{display:flex;gap:6px}
+
+.empty{text-align:center;padding:48px 24px;color:var(--muted);font-size:14px;background:var(--surface);border:1px dashed var(--border);border-radius:2px;font-style:italic;line-height:1.7}
+.empty strong{font-style:normal;color:var(--ink);font-weight:600}
+
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.cat-tab{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-weight:500}
+.cat-tab:hover{color:var(--ink);border-color:var(--muted)}
+.cat-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600}
+
+.modal-bg{position:fixed;inset:0;background:rgba(26,31,46,.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:28px;max-width:540px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:22px;letter-spacing:-.01em}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:24px;float:right;padding:0;line-height:1;font-weight:300}
+.modal-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+
+.calc-box{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:26px 28px;margin-bottom:20px;position:relative}
+.calc-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold)}
+.calc-title{font-size:11px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px;font-weight:700}
+.calc-rows{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.calc-row{padding:16px 18px;background:var(--paper-2);border:1px solid var(--border-soft);border-radius:2px}
+.calc-row.win{border-color:var(--forest);background:#f0f5f2}
+.calc-row-label{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.calc-row-val{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;letter-spacing:-.01em}
+.calc-verdict{margin-top:18px;padding:14px 18px;background:#f0f5f2;border:1px solid var(--forest);border-radius:2px;font-size:13px;color:var(--forest);line-height:1.6}
+.calc-verdict.warn{background:#faf3e3;border-color:var(--amber);color:var(--gold)}
+.calc-verdict strong{font-weight:700}
+
+.check-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--navy);border-radius:2px;padding:18px 22px;margin-bottom:10px}
+.check-header{display:flex;align-items:flex-start;gap:14px;cursor:pointer}
+.check-header input{width:18px;height:18px;margin-top:3px;flex-shrink:0;accent-color:var(--navy)}
+.check-content{flex:1}
+.check-title{font-size:14px;font-weight:600;margin-bottom:6px;line-height:1.4}
+.check-desc{font-size:13px;color:var(--muted);line-height:1.65}
+.check-case{display:inline-block;background:var(--paper-2);color:var(--navy);font-size:11px;font-weight:700;padding:3px 10px;border:1px solid var(--border-soft);border-radius:2px;margin-top:10px;letter-spacing:.04em}
+.check-item.done{opacity:.55;border-left-color:var(--muted)}
+.check-item.done .check-title{text-decoration:line-through}
+
+.summary-box{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:22px 24px;margin-bottom:14px}
+.summary-detail{font-size:13px;color:var(--ink-2);line-height:1.85}
+.summary-detail strong{color:var(--ink);font-weight:600}
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:24px 26px;margin-bottom:14px}
+
+.warn-box{background:#faf3e3;border:1px solid var(--amber);border-left:3px solid var(--amber);border-radius:2px;padding:16px 20px;margin-bottom:18px;font-size:13px;line-height:1.7}
+.warn-box strong{color:var(--gold);font-weight:700}
+.info-box{background:#eef3f8;border:1px solid var(--sky);border-left:3px solid var(--sky);border-radius:2px;padding:16px 20px;margin-bottom:18px;font-size:13px;line-height:1.7}
+.info-box strong{color:var(--navy);font-weight:700}
+.alert-box{background:#faeded;border:1px solid var(--burgundy);border-left:3px solid var(--burgundy);border-radius:2px;padding:16px 20px;margin-bottom:18px;font-size:13px;line-height:1.7}
+.alert-box strong{color:var(--burgundy);font-weight:700}
+
+.actions-bar{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.cat-badge{display:inline-block;font-size:10px;padding:2px 8px;border:1px solid var(--border-soft);border-radius:2px;background:var(--paper-2);color:var(--muted);letter-spacing:.06em;font-weight:500}
+.sig-ok{color:var(--forest);font-weight:500}
+.sig-warn{color:var(--amber);font-weight:500}
+
+.summary-total-line{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline}
+.summary-total-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.summary-total-val{font-family:'Playfair Display',serif;font-weight:700;color:var(--navy);font-size:22px;letter-spacing:-.01em}
+
+/* ═══ PLANNING ═══ */
+.planning-header{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:14px 20px;margin-bottom:16px}
+.planning-nav{display:flex;align-items:center;gap:14px}
+.planning-nav-btn{background:none;border:1px solid var(--border);border-radius:2px;padding:8px 12px;color:var(--ink);cursor:pointer;font-size:14px;font-weight:500}
+.planning-nav-btn:hover{background:var(--paper-2)}
+.planning-month{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.01em;min-width:180px;text-align:center}
+
+.planning-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.planning-stat{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:16px 18px}
+.planning-stat-lbl{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.planning-stat-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+
+/* Legend */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:2px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink)}
+.legend-dot{width:14px;height:14px;border-radius:2px;border:1px solid var(--border)}
+
+/* Calendar grid */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:var(--surface);padding:14px;border:1px solid var(--border);border-radius:2px}
+.cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding:6px 0}
+.cal-day{aspect-ratio:1;background:var(--paper-2);border:1px solid var(--border-soft);border-radius:2px;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;transition:all .1s;position:relative;min-height:52px}
+.cal-day:hover{border-color:var(--navy);transform:scale(1.03);z-index:5}
+.cal-day.empty{background:transparent;border:none;cursor:default;pointer-events:none}
+.cal-day.today{border:2px solid var(--navy)}
+.cal-day-num{font-size:12px;font-weight:600;color:var(--ink)}
+.cal-day-icon{font-size:14px;text-align:right;line-height:1}
+
+.cal-day.jour{background:var(--p-jour);color:#fff}
+.cal-day.jour .cal-day-num{color:#fff}
+.cal-day.nuit{background:var(--p-nuit);color:#fff}
+.cal-day.nuit .cal-day-num{color:#fff}
+.cal-day.h24{background:var(--p-24h);color:#fff}
+.cal-day.h24 .cal-day-num{color:#fff}
+.cal-day.maison{background:var(--paper-2)}
+
+/* Modal planning */
+.plan-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.plan-choice{background:var(--paper-2);border:1.5px solid var(--border);border-radius:2px;padding:14px;cursor:pointer;text-align:left;transition:all .15s}
+.plan-choice:hover{border-color:var(--navy)}
+.plan-choice.selected{border-color:var(--navy);background:#eef3f8}
+.plan-choice-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;margin-bottom:4px}
+.plan-choice-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.plan-choice-repas{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--forest);margin-top:6px}
+
+@media(max-width:700px){
+  .form-row,.calc-rows{grid-template-columns:1fr}
+  .hero{padding:24px 22px}
+  .hero-amount{font-size:42px}
+  .grid{grid-template-columns:1fr 1fr;gap:10px}
+  .card{padding:16px 18px}
+  .card-value{font-size:22px}
+  .page{padding:20px 16px 60px}
+  nav{padding:12px 16px}
+  .brand{font-size:19px}
+  .brand-tag{display:none}
+  h1{font-size:26px}
+  h2{font-size:20px}
+  .modal{padding:22px}
+  .planning-header{flex-direction:column;gap:10px;align-items:stretch}
+  .planning-nav{justify-content:space-between}
+  .planning-month{min-width:auto}
+  .cal-day{min-height:44px}
+  .plan-choices{grid-template-columns:1fr}
 }
-.lieu-scroll{
-  display:flex;gap:6px;
-  overflow-x:auto;scrollbar-width:none;
-  padding:10px 16px;
-  scroll-snap-type:x mandatory;
-}
-.lieu-scroll::-webkit-scrollbar{display:none}
-.lieu-chip{
-  flex-shrink:0;scroll-snap-align:start;
-  display:flex;align-items:center;gap:5px;
-  padding:7px 14px;border-radius:20px;
-  border:1px solid var(--border2);
-  background:var(--card);color:var(--txt3);
-  font-size:12px;font-weight:600;cursor:pointer;
-  transition:all .2s;white-space:nowrap;
-}
-.lieu-chip.active{background:var(--card3);border-color:var(--txt2);color:var(--txt)}
-.lieu-chip .pin{font-size:11px}
-.lieu-add{
-  flex-shrink:0;padding:7px 14px;border-radius:20px;
-  border:1px dashed var(--border2);background:none;
-  color:var(--txt3);font-size:12px;font-weight:600;cursor:pointer;
-  white-space:nowrap;transition:all .2s;
-}
-.lieu-add:active{background:var(--card)}
-
-/* ── Nav ── */
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:8px 4px;padding-bottom:calc(8px + var(--safe-b));background:rgba(10,10,15,.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;justify-content:space-around}
-.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 16px;border-radius:10px}
-.nav-btn .ni{font-size:18px;line-height:1;filter:grayscale(1) opacity(.4)}
-.nav-btn .nl{font-size:9px;font-weight:600;color:var(--txt3);letter-spacing:.5px;text-transform:uppercase}
-.nav-btn.active .ni{filter:grayscale(0) opacity(1)}
-.nav-btn.active .nl{color:var(--txt2)}
-
-/* ── Content ── */
-.content{padding:14px 16px;padding-bottom:calc(90px + var(--safe-b))}
-
-/* ── Section label ── */
-.sec-lbl{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;padding:0 2px}
-
-/* ── Session cards ── */
-.session-card{
-  background:var(--card);border:1px solid var(--border2);
-  border-radius:16px;margin-bottom:8px;overflow:hidden;
-  cursor:pointer;transition:all .15s;
-}
-.session-card:active{transform:scale(.98);background:var(--card2)}
-.session-card.current{border-color:var(--txt2)}
-.session-card.done-card{opacity:.35}
-.sc-inner{display:flex;align-items:center;padding:14px 16px;gap:14px}
-.sc-icon{
-  width:40px;height:40px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;flex-shrink:0;
-  background:var(--card2);border:1px solid var(--border2);
-  color:var(--txt2);font-weight:700;font-size:13px;letter-spacing:-.5px;
-}
-.session-card.current .sc-icon{background:var(--card3);border-color:var(--txt2);color:var(--txt)}
-.sc-info{flex:1}
-.sc-name{font-size:15px;font-weight:700;color:var(--txt);letter-spacing:-.3px}
-.sc-sub{font-size:11px;color:var(--txt3);margin-top:2px}
-.sc-status{font-size:10px;font-weight:600;color:var(--txt3);border:1px solid var(--border2);border-radius:20px;padding:3px 10px}
-.session-card.current .sc-status{color:var(--txt2);border-color:var(--txt2)}
-.session-card.done-card .sc-status{color:var(--done);border-color:var(--done)}
-.sc-chevron{color:var(--txt3);font-size:16px}
-.sc-bar{height:2px;background:var(--border)}
-.sc-progress{height:2px;background:var(--txt3);transition:width .4s}
-.session-card.current .sc-progress{background:var(--txt2)}
-
-/* ── Workout ── */
-.workout-hdr{padding:var(--safe-t) 16px 0;background:rgba(10,10,15,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
-.wk-top{display:flex;align-items:center;gap:12px;padding:8px 0 12px}
-.back-btn{background:var(--card2);border:1px solid var(--border2);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--txt2);cursor:pointer;flex-shrink:0;font-size:16px}
-.wk-title{font-size:18px;font-weight:800;letter-spacing:-.5px;flex:1;color:var(--txt)}
-.wk-ring{position:relative;width:38px;height:38px;flex-shrink:0}
-.wk-ring svg{transform:rotate(-90deg)}
-.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--txt2)}
-
-/* Warn */
-.warn-box{background:rgba(224,160,32,.06);border:1px solid rgba(224,160,32,.2);border-left:3px solid var(--warn);border-radius:12px;padding:10px 12px;font-size:11px;color:#D4A020;margin-bottom:14px;line-height:1.5}
-
-/* Block */
-.block-lbl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt3);margin:16px 0 7px 2px}
-
-/* Ex card */
-.ex-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;margin-bottom:7px;overflow:hidden;transition:opacity .2s}
-.ex-card.done{opacity:.3}
-.ex-card.done .ex-name{text-decoration:line-through}
-.ex-row{display:flex;align-items:center;padding:12px 14px;gap:12px;cursor:pointer}
-.ex-check{width:24px;height:24px;flex-shrink:0;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .2s;cursor:pointer}
-.ex-card.done .ex-check{background:var(--done);border-color:var(--done);color:#fff}
-.ex-body{flex:1;min-width:0}
-.ex-biset{font-size:9px;font-weight:700;letter-spacing:.8px;color:var(--txt3);margin-bottom:2px;text-transform:uppercase}
-.ex-name{font-size:13px;font-weight:700;color:var(--txt);line-height:1.3}
-.ex-sets{font-size:11px;color:var(--txt3);margin-top:2px}
-.ex-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
-.ex-wt{font-size:20px;font-weight:900;letter-spacing:-1px;color:var(--txt);line-height:1}
-.ex-wt small{display:block;font-size:9px;font-weight:500;color:var(--txt3);text-align:right}
-.derog-badge{font-size:8px;font-weight:700;color:var(--warn);background:rgba(224,160,32,.1);border:1px solid rgba(224,160,32,.25);border-radius:5px;padding:2px 5px}
-.ex-alt{padding:0 14px 10px 50px;font-size:11px;color:var(--txt3);font-style:italic;display:none}
-.ex-card.expanded .ex-alt{display:block}
-.ex-extra{display:none;padding:0 14px 12px 50px;flex-direction:column;gap:8px}
-.ex-card.expanded .ex-extra{display:flex}
-.perf-row{display:flex;gap:6px;align-items:center}
-.perf-input{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;color:var(--txt);text-align:center;-webkit-appearance:none}
-.perf-input::placeholder{color:var(--txt3);font-weight:400}
-.rpe-sel{display:flex;gap:3px}
-.rpe-btn{padding:6px 7px;border-radius:7px;border:1px solid var(--border2);background:var(--card2);color:var(--txt3);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
-.rpe-btn.active{border-color:var(--txt2);color:var(--txt);background:var(--card3)}
-.derog-row{display:flex;align-items:center;gap:8px}
-.derog-label{font-size:11px;color:var(--warn);font-weight:600;flex-shrink:0}
-.derog-input{width:68px;background:rgba(224,160,32,.06);border:1px solid rgba(224,160,32,.25);border-radius:10px;padding:7px 8px;font-size:13px;font-weight:700;color:var(--warn);text-align:center;-webkit-appearance:none}
-.derog-input::placeholder{color:rgba(224,160,32,.3);font-weight:400}
-.derog-reset{font-size:11px;color:var(--txt3);background:none;border:none;cursor:pointer;text-decoration:underline}
-
-/* Timer FAB */
-.timer-fab{position:fixed;right:16px;bottom:calc(78px + var(--safe-b));z-index:99;width:48px;height:48px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:none;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all .2s}
-.timer-fab.visible{display:flex}
-.timer-fab.running{border-color:var(--txt2);background:var(--card3)}
-
-/* Timer overlay */
-.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .3s}
-.timer-overlay.show{opacity:1;pointer-events:all}
-.timer-modal{background:var(--card);border:1px solid var(--border2);border-radius:24px 24px 0 0;padding:20px 24px;padding-bottom:calc(24px + var(--safe-b));width:100%;max-width:500px}
-.timer-drag{width:32px;height:3px;background:var(--border2);border-radius:3px;margin:0 auto 18px}
-.timer-title{font-size:11px;font-weight:700;color:var(--txt3);text-align:center;margin-bottom:18px;letter-spacing:1px;text-transform:uppercase}
-.timer-count{font-size:68px;font-weight:900;letter-spacing:-4px;text-align:center;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1}
-.timer-count.warning{color:var(--warn)}
-.timer-count.done-clr{color:var(--done)}
-.timer-bar-wrap{height:3px;background:var(--border2);border-radius:3px;margin:12px 0 20px;overflow:hidden}
-.timer-bar{height:3px;border-radius:3px;background:var(--txt2);transition:width .1s linear}
-.timer-presets{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
-.t-preset{padding:7px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--card2);color:var(--txt3);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
-.t-preset.active{border-color:var(--txt2);color:var(--txt);background:var(--card3)}
-.timer-custom{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:18px}
-.timer-custom label{font-size:11px;color:var(--txt3)}
-.timer-custom input{width:50px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:6px 8px;font-size:13px;font-weight:700;color:var(--txt2);text-align:center;-webkit-appearance:none}
-.timer-controls{display:flex;gap:8px;margin-bottom:12px}
-.t-btn{flex:1;padding:14px;border-radius:12px;border:none;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s}
-.t-btn:active{transform:scale(.96)}
-.t-btn.start{background:var(--txt);color:var(--bg)}
-.t-btn.pause{background:var(--card2);color:var(--txt2);border:1px solid var(--border2)}
-.t-btn.reset{background:var(--card2);color:var(--txt3);border:1px solid var(--border2)}
-.t-close{width:100%;padding:11px;border-radius:10px;border:none;background:none;color:var(--txt3);font-size:13px;cursor:pointer}
-
-/* WOD */
-.wod-opt{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 14px;margin-bottom:7px;cursor:pointer;transition:border-color .2s}
-.wod-opt.selected{border-color:var(--txt2);background:var(--card2)}
-.wod-ico{font-size:22px;flex-shrink:0;filter:grayscale(1)}
-.wod-opt.selected .wod-ico{filter:none}
-.wod-info{flex:1}
-.wod-name{font-size:13px;font-weight:700;color:var(--txt)}
-.wod-desc{font-size:11px;color:var(--txt3);margin-top:2px}
-.wod-avail{font-size:10px;color:var(--txt3);margin-top:2px}
-
-/* Mob */
-.mob-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 16px;cursor:pointer;margin-top:14px;font-size:13px;font-weight:600;color:var(--txt2)}
-.mob-chev{font-size:10px;color:var(--txt3);transition:transform .3s}
-.mob-toggle.open .mob-chev{transform:rotate(180deg)}
-.mob-items{display:none;margin-top:6px}
-.mob-items.open{display:block}
-.mob-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border2);border-radius:10px;margin-bottom:6px}
-.mob-name{font-size:13px;font-weight:600;color:var(--txt)}
-.mob-zone{font-size:10px;color:var(--txt3);margin-top:1px}
-.mob-dur{font-size:11px;font-weight:700;color:var(--txt2)}
-
-/* Validate bar */
-.validate-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px;padding-bottom:calc(10px + var(--safe-b));background:rgba(10,10,15,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:99}
-.validate-btn{width:100%;padding:15px;border-radius:13px;border:none;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;background:var(--txt);color:var(--bg)}
-.validate-btn:active{transform:scale(.97)}
-.validate-btn.done-mode{background:var(--card2);color:var(--done);border:1px solid rgba(76,175,80,.3)}
-
-/* History */
-.hist-empty{text-align:center;padding:60px 20px;color:var(--txt3)}
-.hist-empty .icon{font-size:40px;margin-bottom:12px;filter:grayscale(1)}
-.hist-date-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--txt3);margin:16px 0 8px}
-.hist-entry{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;margin-bottom:7px}
-.hist-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.hist-sess{font-size:14px;font-weight:800;color:var(--txt)}
-.hist-lieu{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;background:var(--card2);color:var(--txt3)}
-.hist-exos{display:flex;flex-direction:column;gap:3px}
-.hist-exo{display:flex;justify-content:space-between;font-size:12px}
-.hist-exo-name{color:var(--txt3)}
-.hist-exo-val{font-weight:700;color:var(--txt)}
-
-/* Charts */
-.chart-wrap{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:16px}
-.chart-selector{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
-.chart-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--card2);color:var(--txt3);font-size:10px;font-weight:600;cursor:pointer}
-.chart-btn.active{border-color:var(--txt2);color:var(--txt);background:var(--card3)}
-.chart-empty{text-align:center;color:var(--txt3);font-size:12px;padding:24px 0}
-
-/* Settings */
-.settings-section{margin-bottom:22px}
-.settings-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--txt3);margin-bottom:8px;padding:0 2px}
-.setting-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border2);border-radius:13px;padding:13px 16px;margin-bottom:7px;cursor:pointer}
-.setting-label{font-size:14px;font-weight:600;color:var(--txt)}
-.setting-sub{font-size:11px;color:var(--txt3);margin-top:2px}
-.s-btn{background:var(--card2);border:1px solid var(--border2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--txt2);cursor:pointer}
-.s-num{font-size:15px;font-weight:800;color:var(--txt);min-width:40px;text-align:center}
-
-/* Lieu edit */
-.lieu-edit-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-.lieu-edit-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:10px 14px}
-.lieu-edit-input{flex:1;background:none;border:none;font-size:14px;font-weight:600;color:var(--txt);outline:none}
-.lieu-edit-del{background:none;border:none;color:var(--txt3);font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
-.lieu-add-row{display:flex;gap:8px}
-.lieu-add-input{flex:1;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--txt);outline:none}
-.lieu-add-input::placeholder{color:var(--txt3)}
-.lieu-add-btn{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--txt2);cursor:pointer}
-
-.ex-edit-card{background:var(--card);border:1px solid var(--border2);border-radius:13px;padding:13px 16px;margin-bottom:7px}
-.ex-edit-name{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:10px}
-.ex-edit-fields{display:flex;gap:6px;flex-wrap:wrap}
-.field-group{display:flex;flex-direction:column;align-items:center;gap:3px}
-.field-lbl{font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px}
-.field-inp{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:6px 8px;font-size:13px;font-weight:700;color:var(--txt2);width:65px;text-align:center;-webkit-appearance:none}
-
-/* Toast */
-.toast{position:fixed;top:calc(var(--safe-t) + 64px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--card3);border:1px solid var(--border2);color:var(--txt);padding:10px 18px;border-radius:20px;font-size:12px;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.div{height:1px;background:var(--border);margin:14px 0}
 </style>
 </head>
 <body>
 
-<!-- HOME -->
-<div class="screen active" id="screen-home">
-  <div class="hdr">
-    <div class="hdr-row">
-      <div>
-        <div class="hdr-title">PROG<span class="hdr-dot"> · </span>Félix</div>
-        <div class="hdr-sub" id="home-date"></div>
-      </div>
-      <div class="week-pill">
-        <button onclick="changeWeek(-1)">‹</button>
-        <span class="week-label">S<span id="wkNum">1</span></span>
-        <button onclick="changeWeek(1)">›</button>
-      </div>
-    </div>
-  </div>
-  <div class="lieu-scroll-wrap">
-    <div class="lieu-scroll" id="lieu-scroll"></div>
-  </div>
-  <div class="content">
-    <div class="sec-lbl">Séances</div>
-    <div id="session-cards"></div>
-  </div>
-</div>
-
-<!-- WORKOUT -->
-<div class="screen" id="screen-workout">
-  <div class="workout-hdr">
-    <div class="wk-top">
-      <div class="back-btn" onclick="goHome()">←</div>
-      <div class="wk-title" id="wk-title"></div>
-      <div class="wk-ring">
-        <svg width="38" height="38" viewBox="0 0 38 38">
-          <circle cx="19" cy="19" r="15" fill="none" stroke="#222230" stroke-width="2.5"/>
-          <circle id="wk-ring-val" cx="19" cy="19" r="15" fill="none" stroke-width="2.5" stroke-linecap="round"
-            stroke="#8080A0" stroke-dasharray="94.2" stroke-dashoffset="94.2" style="transition:stroke-dashoffset .4s ease"/>
-        </svg>
-        <div class="ring-pct" id="wk-pct">0%</div>
-      </div>
-    </div>
-  </div>
-  <div class="content" id="wk-content" style="padding-top:8px;padding-bottom:140px"></div>
-  <div class="validate-bar">
-    <button class="validate-btn" id="validate-btn" onclick="validateSession()"></button>
-  </div>
-</div>
-
-<!-- HISTORY -->
-<div class="screen" id="screen-history">
-  <div class="hdr">
-    <div class="hdr-row">
-      <div><div class="hdr-title">Historique</div><div class="hdr-sub">Séances & progression</div></div>
-      <button onclick="clearHistory()" style="background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer">Effacer</button>
-    </div>
-  </div>
-  <div class="content" id="hist-content"></div>
-</div>
-
-<!-- SETTINGS -->
-<div class="screen" id="screen-settings">
-  <div class="hdr">
-    <div class="hdr-row">
-      <div><div class="hdr-title">Réglages</div><div class="hdr-sub">Programme · Lieux · Poids</div></div>
-    </div>
-  </div>
-  <div class="content" id="settings-content"></div>
-</div>
-
-<!-- NAV -->
-<nav class="nav" id="main-nav">
-  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
-    <span class="ni">🏠</span><span class="nl">Accueil</span>
-  </button>
-  <button class="nav-btn" id="nav-history" onclick="showScreen('history')">
-    <span class="ni">📊</span><span class="nl">Historique</span>
-  </button>
-  <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
-    <span class="ni">⚙️</span><span class="nl">Réglages</span>
-  </button>
+<nav>
+  <div class="brand">Mon<em>Impôt</em><span class="brand-tag">Assistant fiscal</span></div>
+  <div class="year-badge" id="yearBadge">Exercice <strong>2025</strong></div>
 </nav>
 
-<!-- TIMER FAB -->
-<div class="timer-fab" id="timer-fab" onclick="openTimer()">⏱</div>
+<div class="tabs">
+  <button class="tab active" data-page="dashboard">Synthèse</button>
+  <button class="tab" data-page="revenus">Revenus</button>
+  <button class="tab" data-page="planning">Planning</button>
+  <button class="tab" data-page="factures">Écritures</button>
+  <button class="tab" data-page="calcul">Calcul</button>
+  <button class="tab" data-page="simulateur">Simulateur</button>
+  <button class="tab" data-page="checklist">Déclaration</button>
+  <button class="tab" data-page="profil">Profil</button>
+</div>
 
-<!-- TIMER MODAL -->
-<div class="timer-overlay" id="timer-overlay" onclick="handleOverlayClick(event)">
-  <div class="timer-modal" onclick="event.stopPropagation()">
-    <div class="timer-drag"></div>
-    <div class="timer-title">Repos</div>
-    <div class="timer-count" id="timer-count">02:00</div>
-    <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
-    <div class="timer-presets">
-      <button class="t-preset" onclick="setPreset(60)">1 min</button>
-      <button class="t-preset" onclick="setPreset(90)">1:30</button>
-      <button class="t-preset active" onclick="setPreset(120)">2 min</button>
-      <button class="t-preset" onclick="setPreset(180)">3 min</button>
-      <button class="t-preset" onclick="setPreset(300)">5 min</button>
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="hero">
+    <div class="hero-label">Économie fiscale estimée</div>
+    <div class="hero-amount" id="heroAmount">0 €</div>
+    <div class="hero-sub" id="heroSub">Renseignez vos revenus, planning et écritures</div>
+    <div class="countdown" id="countdown">Chargement…</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">Revenu imposable</div>
+      <div class="card-value n" id="cRevenu">— €</div>
+      <div class="card-sub" id="cTMI">Tranche marginale : —</div>
     </div>
-    <div class="timer-custom">
-      <label>Perso :</label>
-      <input type="number" id="custom-min" placeholder="min" min="0" max="60" inputmode="numeric" onchange="setCustom()">
-      <span style="color:var(--txt3);font-size:12px">min</span>
-      <input type="number" id="custom-sec" placeholder="sec" min="0" max="59" inputmode="numeric" onchange="setCustom()">
-      <span style="color:var(--txt3);font-size:12px">sec</span>
+    <div class="card">
+      <div class="card-label">Repas gamelle</div>
+      <div class="card-value d" id="cRepas">0 €</div>
+      <div class="card-sub"><span id="cNbRepas">0</span> repas déductibles</div>
     </div>
-    <div class="timer-controls">
-      <button class="t-btn reset" onclick="resetTimer()">↺</button>
-      <button class="t-btn start" id="timer-start-btn" onclick="toggleTimer()">▶ Start</button>
+    <div class="card">
+      <div class="card-label">Frais réels vs forfait</div>
+      <div class="card-value g" id="cAvantage">Forfait</div>
+      <div class="card-sub" id="cAvantageSub">Aucun calcul</div>
     </div>
-    <button class="t-close" onclick="closeTimer()">Fermer</button>
+    <div class="card">
+      <div class="card-label">Crédits & réductions</div>
+      <div class="card-value d" id="cCredits">0 €</div>
+      <div class="card-sub">Dons, garde, PER…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="section-num">§ I.</span>Verdict frais réels</h2>
+    <div id="verdictBox"></div>
+  </div>
+
+  <div class="section">
+    <h2><span class="section-num">§ II.</span>Dernières écritures</h2>
+    <div id="recentFactures"></div>
+  </div>
+
+  <div class="section">
+    <h2><span class="section-num">§ III.</span>Recommandations</h2>
+    <div id="nextActions"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- REVENUS -->
+<div class="page" id="page-revenus">
+  <h1>Revenus & primes</h1>
+  <p class="section-intro">Consignez vos revenus. Les indemnités exonérées sont enregistrées à titre informatif.</p>
+
+  <div class="info-box">
+    <strong>Rappel — Primes exonérées.</strong> ICM, IJAT, ISSE / OPEX : ces indemnités sont exonérées d'impôt et ne doivent pas figurer dans votre déclaration. Attention : si vous optez pour les frais réels, l'ICM doit être réintégrée dans le revenu imposable.
+  </div>
+
+  <div class="section">
+    <h3>Solde et primes imposables</h3>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">Solde annuelle nette imposable</span>
+        <input type="number" id="rSolde" placeholder="0" onchange="save()">
+        <span class="field-hint">Ligne « revenu net imposable » de votre avis d'imposition</span>
+      </div>
+      <div class="field">
+        <span class="field-label">Revenus du conjoint(e)</span>
+        <input type="number" id="rConjoint" placeholder="0" onchange="save()">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">PRE — Prime de Résultats Exceptionnels</span>
+        <input type="number" id="rPRE" placeholder="0" onchange="save()">
+        <span class="field-hint">Événement ponctuel — quotient applicable</span>
+      </div>
+      <div class="field">
+        <span class="field-label">ICR — Changement de Résidence</span>
+        <input type="number" id="rICR" placeholder="0" onchange="save()">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">Autres primes imposables</span>
+        <input type="number" id="rAutres" placeholder="0" onchange="save()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Indemnités exonérées (mémoire)</h3>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">ICM — Charges Militaires</span>
+        <input type="number" id="rICM" placeholder="0" onchange="save()">
+        <span class="field-hint">Exonérée sauf option frais réels</span>
+      </div>
+      <div class="field">
+        <span class="field-label">IJAT</span>
+        <input type="number" id="rIJAT" placeholder="0" onchange="save()">
+        <span class="field-hint">Exonérée art. 81 CGI</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">ISSE / OPEX</span>
+        <input type="number" id="rISSE" placeholder="0" onchange="save()">
+      </div>
+      <div class="field">
+        <span class="field-label">Autres indemnités OPEX</span>
+        <input type="number" id="rOPEX" placeholder="0" onchange="save()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Revenus du patrimoine (SCPI, PEA)</h3>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">Revenus SCPI perçus</span>
+        <input type="number" id="rSCPI" placeholder="0" onchange="save()">
+        <span class="field-hint">Loyers versés — revenus fonciers</span>
+      </div>
+      <div class="field">
+        <span class="field-label">Plus-values / retraits PEA imposables</span>
+        <input type="number" id="rPEA" placeholder="0" onchange="save()">
+        <span class="field-hint">Uniquement retraits < 5 ans</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">Dividendes hors PEA</span>
+        <input type="number" id="rDividendes" placeholder="0" onchange="save()">
+      </div>
+      <div class="field">
+        <span class="field-label">Intérêts hors livrets exonérés</span>
+        <input type="number" id="rInterets" placeholder="0" onchange="save()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLANNING -->
+<div class="page" id="page-planning">
+  <h1>Planning annuel</h1>
+  <p class="section-intro">Cliquez sur chaque jour pour définir votre poste. Les repas gamelle déductibles sont calculés automatiquement selon le forfait 5,45 € / repas (revenus 2025).</p>
+
+  <div class="info-box">
+    <strong>Rappel fiscal —</strong> seuls les repas gamelle pris hors domicile (site distant sans possibilité de rentrer manger, sans cantine subventionnée disponible) sont déductibles. Applicable uniquement en cas d'option pour les frais réels.
+  </div>
+
+  <div class="planning-stats">
+    <div class="planning-stat">
+      <div class="planning-stat-lbl">Jours travaillés (année)</div>
+      <div class="planning-stat-val" id="statJours">0</div>
+    </div>
+    <div class="planning-stat">
+      <div class="planning-stat-lbl">Repas déductibles</div>
+      <div class="planning-stat-val" id="statRepas">0</div>
+    </div>
+    <div class="planning-stat">
+      <div class="planning-stat-lbl">Montant déductible</div>
+      <div class="planning-stat-val" id="statMontant">0 €</div>
+    </div>
+    <div class="planning-stat">
+      <div class="planning-stat-lbl">Postes 12h Nuit</div>
+      <div class="planning-stat-val" id="statNuit">0</div>
+    </div>
+    <div class="planning-stat">
+      <div class="planning-stat-lbl">Postes 24h</div>
+      <div class="planning-stat-val" id="stat24">0</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--p-jour)"></div>12h Jour (cantine midi — 0 repas déd.)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--p-nuit)"></div>12h Nuit (gamelle soir — 1 repas)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--p-24h)"></div>24h (double gamelle — 2 repas)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--p-maison)"></div>Maison (0 repas)</div>
+  </div>
+
+  <div class="planning-header">
+    <div class="planning-nav">
+      <button class="planning-nav-btn" onclick="prevMonth()">← Précédent</button>
+      <div class="planning-month" id="planningMonth">Janvier 2025</div>
+      <button class="planning-nav-btn" onclick="nextMonth()">Suivant →</button>
+    </div>
+    <button class="btn secondary" onclick="openBulkModal()">Semaine-type</button>
+  </div>
+
+  <div class="cal-grid" id="calGrid"></div>
+
+  <div class="actions-bar">
+    <button class="btn secondary" onclick="clearMonth()">Effacer le mois</button>
+    <button class="btn danger" onclick="clearAll()">Effacer toute l'année</button>
+  </div>
+</div>
+
+<!-- FACTURES -->
+<div class="page" id="page-factures">
+  <h1>Écritures & justificatifs</h1>
+  <p class="section-intro">Consignez au fil de l'exercice les dépenses ouvrant droit à déduction ou crédit d'impôt.</p>
+
+  <div class="cat-tabs" id="catTabs">
+    <div class="cat-tab active" data-cat="all">Toutes</div>
+    <div class="cat-tab" data-cat="materiel">Matériel pro</div>
+    <div class="cat-tab" data-cat="demenagement">Déménagement</div>
+    <div class="cat-tab" data-cat="garde">Garde enfants</div>
+    <div class="cat-tab" data-cat="don">Dons</div>
+    <div class="cat-tab" data-cat="pension">Pension</div>
+    <div class="cat-tab" data-cat="services">Service domicile</div>
+    <div class="cat-tab" data-cat="per">PER</div>
+    <div class="cat-tab" data-cat="pme">PME</div>
+    <div class="cat-tab" data-cat="autre">Autre</div>
+  </div>
+
+  <button class="btn" onclick="openFacture()">+ Nouvelle écriture</button>
+
+  <div id="facturesList" style="margin-top:18px"></div>
+</div>
+
+<!-- CALCUL -->
+<div class="page" id="page-calcul">
+  <h1>Simulation & calculs</h1>
+  <p class="section-intro">Barème 2025 (revenus 2024), décote incluse, plafond abattement 14 171 €.</p>
+
+  <div class="calc-box">
+    <div class="calc-title">§ I — Frais réels vs forfait 10 %</div>
+    <div class="calc-rows">
+      <div class="calc-row">
+        <div class="calc-row-label">Abattement forfaitaire 10 %</div>
+        <div class="calc-row-val" id="calcForfaitVal">0 €</div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-row-label">Total des frais réels</div>
+        <div class="calc-row-val" id="calcReelsVal">0 €</div>
+      </div>
+    </div>
+    <div class="calc-verdict" id="calcVerdict">Renseignez votre revenu pour la comparaison.</div>
+  </div>
+
+  <div class="alert-box" id="icmAlert" style="display:none">
+    <strong>Alerte ICM.</strong> Passage aux frais réels : l'ICM (<span id="icmMont">0 €</span>) doit être réintégrée dans le revenu imposable.
+  </div>
+
+  <div class="section">
+    <h3>Détail des frais réels</h3>
+    <div id="detailFraisReels"></div>
+  </div>
+
+  <div class="section">
+    <h3>Économie d'impôt estimée</h3>
+    <div class="calc-box">
+      <div class="calc-title">§ II — Synthèse fiscale</div>
+      <div class="calc-rows">
+        <div class="calc-row">
+          <div class="calc-row-label">Déductions du revenu</div>
+          <div class="calc-row-val" id="econRevenu">0 €</div>
+        </div>
+        <div class="calc-row win">
+          <div class="calc-row-label">Économie d'impôt</div>
+          <div class="calc-row-val" id="econImpot" style="color:var(--forest)">0 €</div>
+        </div>
+      </div>
+      <div class="calc-rows" style="margin-top:14px">
+        <div class="calc-row">
+          <div class="calc-row-label">Réductions & crédits</div>
+          <div class="calc-row-val" id="econReductions">0 €</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-row-label">Tranche marginale</div>
+          <div class="calc-row-val" id="econTMI">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>PRE — Système du quotient</h3>
+    <div id="calcQuotient"></div>
+  </div>
+
+  <div class="section">
+    <h3>PER — Plafond de déduction</h3>
+    <div id="calcPER"></div>
+  </div>
+
+  <div class="section">
+    <h3>SCPI — Régime foncier</h3>
+    <div id="calcSCPI"></div>
+  </div>
+</div>
+
+<!-- SIMULATEUR -->
+<div class="page" id="page-simulateur">
+  <h1>Simulateur « et si »</h1>
+  <p class="section-intro">Testez l'impact d'un versement PER, don ou investissement.</p>
+
+  <div class="calc-box">
+    <div class="calc-title">§ I — Versement PER supplémentaire</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Simuler un versement additionnel :</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy)" id="simPerVal">0 €</span>
+      <span style="font-size:11px;color:var(--muted)" id="simPerMax">Plafond : —</span>
+    </div>
+    <input type="range" style="width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin:12px 0" id="simPer" min="0" max="10000" step="100" value="0" oninput="simulate()">
+    <div style="background:var(--paper-2);padding:14px 18px;border-radius:2px;border:1px solid var(--border-soft);margin-top:12px">
+      Économie d'impôt : <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--forest)" id="simPerResult">0 €</span>
+    </div>
+  </div>
+
+  <div class="calc-box">
+    <div class="calc-title">§ II — Don à une association</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Simuler un don supplémentaire :</div>
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:6px" id="simDonVal">0 €</div>
+    <input type="range" style="width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin:12px 0" id="simDon" min="0" max="3000" step="50" value="0" oninput="simulate()">
+    <div style="background:var(--paper-2);padding:14px 18px;border-radius:2px;border:1px solid var(--border-soft);margin-top:12px">
+      Réduction d'impôt (66 %) : <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--forest)" id="simDonResult">0 €</span>
+    </div>
+  </div>
+
+  <div class="calc-box">
+    <div class="calc-title">§ III — Investissement PME</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Simuler un investissement au capital d'une PME :</div>
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:6px" id="simPmeVal">0 €</div>
+    <input type="range" style="width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin:12px 0" id="simPme" min="0" max="20000" step="500" value="0" oninput="simulate()">
+    <div style="background:var(--paper-2);padding:14px 18px;border-radius:2px;border:1px solid var(--border-soft);margin-top:12px">
+      Réduction d'impôt (18 %) : <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--forest)" id="simPmeResult">0 €</span>
+    </div>
+  </div>
+
+  <div class="calc-box">
+    <div class="calc-title">§ IV — Récapitulatif</div>
+    <div class="calc-rows">
+      <div class="calc-row">
+        <div class="calc-row-label">Impôt actuel estimé</div>
+        <div class="calc-row-val" id="simImpotAvant">0 €</div>
+      </div>
+      <div class="calc-row win">
+        <div class="calc-row-label">Impôt après optimisations</div>
+        <div class="calc-row-val" id="simImpotApres" style="color:var(--forest)">0 €</div>
+      </div>
+    </div>
+    <div class="calc-verdict" id="simVerdict">Ajustez les curseurs.</div>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="page" id="page-checklist">
+  <h1>Assistant à la déclaration<span class="progress-count" id="declProgress"></span></h1>
+  <p class="section-intro">Cases exactes du formulaire 2042 selon vos données.</p>
+
+  <div class="info-box">
+    <strong>Mode d'emploi —</strong> les postes sont générés automatiquement. Cochez chaque item lors de votre saisie sur impots.gouv.fr.
+  </div>
+
+  <div id="checklistItems"></div>
+
+  <div class="actions-bar">
+    <button class="btn" onclick="exportRecap()">Exporter le récapitulatif</button>
+    <button class="btn secondary" onclick="resetChecklist()">Réinitialiser</button>
+  </div>
+</div>
+
+<!-- PROFIL -->
+<div class="page" id="page-profil">
+  <h1>Profil fiscal</h1>
+  <p class="section-intro">Informations pour le calcul du quotient familial.</p>
+
+  <div class="section">
+    <h3>Situation familiale</h3>
+    <div class="profile-card">
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">Situation</span>
+          <select id="pSituation" onchange="save()">
+            <option value="celibataire">Célibataire</option>
+            <option value="marie">Marié(e) / Pacsé(e)</option>
+            <option value="divorce">Divorcé(e)</option>
+            <option value="veuf">Veuf(ve)</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="field-label">Enfants à charge</span>
+          <input type="number" id="pEnfants" min="0" max="10" value="0" onchange="save()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">Enfants en garde alternée</span>
+          <input type="number" id="pGardeAlt" min="0" max="10" value="0" onchange="save()">
+        </div>
+        <div class="field">
+          <span class="field-label">Parts fiscales calculées</span>
+          <input type="text" id="pParts" readonly style="background:var(--paper-2);color:var(--muted)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Situation professionnelle</h3>
+    <div class="profile-card">
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">Grade</span>
+          <select id="pStatut" onchange="save()">
+            <option value="gav">Gendarme adjoint volontaire</option>
+            <option value="soo" selected>Sous-officier</option>
+            <option value="oo">Officier</option>
+            <option value="soutien">Personnel de soutien</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="field-label">Année du planning</span>
+          <select id="pYear" onchange="changeYear()">
+            <option value="2024">2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Données & confidentialité</h3>
+    <div class="warn-box">
+      <strong>Confidentialité totale —</strong> stockage local uniquement. Exportez régulièrement une sauvegarde JSON.
+    </div>
+    <div class="actions-bar">
+      <button class="btn" onclick="exportData()">Exporter mes données</button>
+      <button class="btn secondary" onclick="document.getElementById('importFile').click()">Importer sauvegarde</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn danger" onclick="wipeData()">Effacer toutes mes données</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PLANNING -->
+<div class="modal-bg" id="modalPlanning">
+  <div class="modal">
+    <button class="modal-close" onclick="closePlanModal()">×</button>
+    <div class="modal-title" id="planModalTitle">Définir le poste</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px" id="planModalDate"></div>
+
+    <div class="plan-choices">
+      <div class="plan-choice" data-type="jour" onclick="setDayType('jour')">
+        <div class="plan-choice-title">🌤 12h Jour</div>
+        <div class="plan-choice-desc">8h → 20h — cantine midi</div>
+        <div class="plan-choice-repas">0 repas déductible</div>
+      </div>
+      <div class="plan-choice" data-type="nuit" onclick="setDayType('nuit')">
+        <div class="plan-choice-title">🌙 12h Nuit</div>
+        <div class="plan-choice-desc">20h → 8h — gamelle soir</div>
+        <div class="plan-choice-repas">1 repas × 5,45 €</div>
+      </div>
+      <div class="plan-choice" data-type="h24" onclick="setDayType('h24')">
+        <div class="plan-choice-title">⚡ 24h</div>
+        <div class="plan-choice-desc">Double gamelle (midi + soir)</div>
+        <div class="plan-choice-repas">2 repas × 5,45 €</div>
+      </div>
+      <div class="plan-choice" data-type="maison" onclick="setDayType('maison')">
+        <div class="plan-choice-title">🏠 Maison</div>
+        <div class="plan-choice-desc">Repos, congé, caserne, astreinte</div>
+        <div class="plan-choice-repas">0 repas déductible</div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn danger" onclick="clearDay()">Effacer ce jour</button>
+      <button class="btn secondary" onclick="closePlanModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BULK / SEMAINE-TYPE -->
+<div class="modal-bg" id="modalBulk">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBulkModal()">×</button>
+    <div class="modal-title">Appliquer une semaine-type</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Définissez chaque jour de la semaine puis appliquez à une période.</div>
+
+    <div id="bulkWeek"></div>
+
+    <div class="form-row" style="margin-top:16px">
+      <div class="field">
+        <span class="field-label">Du</span>
+        <input type="date" id="bulkFrom">
+      </div>
+      <div class="field">
+        <span class="field-label">Au</span>
+        <input type="date" id="bulkTo">
+      </div>
+    </div>
+
+    <label class="check" style="margin-top:10px">
+      <input type="checkbox" id="bulkOverwrite">
+      <span>Écraser les jours déjà définis dans cette période</span>
+    </label>
+
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeBulkModal()">Annuler</button>
+      <button class="btn" onclick="applyBulk()">Appliquer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FACTURE -->
+<div class="modal-bg" id="modalFacture">
+  <div class="modal">
+    <button class="modal-close" onclick="closeFacture()">×</button>
+    <div class="modal-title" id="modalTitle">Nouvelle écriture</div>
+
+    <div class="field" style="margin-bottom:14px">
+      <span class="field-label">Catégorie</span>
+      <select id="fCat" onchange="showCatHint()">
+        <option value="materiel">Matériel professionnel (hors dotation)</option>
+        <option value="demenagement">Déménagement (mutation)</option>
+        <option value="garde">Garde d'enfants</option>
+        <option value="don">Don à association</option>
+        <option value="pension">Pension alimentaire</option>
+        <option value="services">Service à domicile</option>
+        <option value="per">Versement PER</option>
+        <option value="pme">Investissement PME</option>
+        <option value="autre">Autre</option>
+      </select>
+    </div>
+
+    <div id="catHint" style="display:none" class="warn-box"></div>
+
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">Date</span>
+        <input type="date" id="fDate">
+      </div>
+      <div class="field">
+        <span class="field-label">Montant (€)</span>
+        <input type="number" id="fMontant" placeholder="0" step="0.01">
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:14px">
+      <span class="field-label">Description</span>
+      <input type="text" id="fDesc" placeholder="Ex : Lampe tactique">
+    </div>
+
+    <div class="field" style="margin-bottom:14px">
+      <span class="field-label">Fournisseur</span>
+      <input type="text" id="fFournisseur" placeholder="Ex : Uniforce">
+    </div>
+
+    <div class="field" style="margin-bottom:12px">
+      <span class="field-label">Notes</span>
+      <textarea id="fNotes" placeholder="Motif, référence du justificatif…"></textarea>
+    </div>
+
+    <label class="check">
+      <input type="checkbox" id="fJustif">
+      <span>Justificatif conservé</span>
+    </label>
+
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeFacture()">Annuler</button>
+      <button class="btn" onclick="saveFacture()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <script>
-// ═══════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════
-const DEFAULT_LIEUX = ['HOME','BUREAU','PA'];
+let DATA = { profil:{}, revenus:{}, factures:[], checklist:{}, planning:{} };
+const KEY = 'monimpot_v4';
+const REPAS_FORFAIT = 5.45;
 
-const DEFAULT_POIDS = {
-  'Dév. couché':      {HOME:58,BUREAU:58,PA:52,inc:2},
-  'Dév. incliné':     {HOME:46,BUREAU:52,PA:44,inc:1},
-  'Écarté halt.':     {HOME:16,BUREAU:20,PA:16,inc:0.5},
-  'Dév. militaire':   {HOME:26,BUREAU:32,PA:26,inc:1},
-  'Élév. lat.':       {HOME:10,BUREAU:12,PA:10,inc:0.5},
-  'Face pull':        {HOME:18,BUREAU:22,PA:16,inc:1},
-  'Squat barre':      {HOME:60,BUREAU:70,PA:60,inc:2},
-  'Fentes avant':     {HOME:10,BUREAU:14,PA:10,inc:1},
-  'Fentes bulgares':  {HOME:10,BUREAU:14,PA:10,inc:1},
-  'RDL':              {HOME:50,BUREAU:65,PA:50,inc:2},
-  'Good morning':     {HOME:20,BUREAU:24,PA:20,inc:1},
-  'Rowing barre':     {HOME:50,BUREAU:65,PA:50,inc:1.5},
-  'Rowing halt.':     {HOME:22,BUREAU:32,PA:20,inc:1},
-  'Tirage poulie':    {HOME:40,BUREAU:48,PA:38,inc:1},
-  'Curl EZ':          {HOME:28,BUREAU:34,PA:26,inc:1},
-  'Curl marteau':     {HOME:12,BUREAU:16,PA:12,inc:0.5},
-  'Skull crusher EZ': {HOME:20,BUREAU:24,PA:20,inc:0.5},
-  'Ext. triceps':     {HOME:14,BUREAU:18,PA:14,inc:0.5},
-};
+try {
+  const stored = localStorage.getItem(KEY);
+  if (stored) DATA = { ...DATA, ...JSON.parse(stored) };
+  if (!DATA.planning) DATA.planning = {};
+} catch(e) {}
 
-const SESSIONS_DEF = {
-  push:{label:'PUSH',short:'PSH',sub:'Poitrine · Épaules',
-    warn:'Épaule G — Face pull AVANT le bench · −15% si douleur',
-    blocks:[
-      {label:'Poitrine',exos:[
-        {name:'Dév. couché',sets:'4×8-10',key:'Dév. couché',alt:'Haltères si épaule sensible'},
-        {name:'Dév. incliné',sets:'3×10-12',key:'Dév. incliné',alt:'Machine inclinée (Bureau)'},
-        {name:'Écarté halt.',sets:'3×12-15',key:'Écarté halt.',alt:'Pec deck / Cable crossover'},
-      ]},
-      {label:'Épaules',exos:[
-        {name:'Dév. militaire',sets:'3×10-12',key:'Dév. militaire',alt:'Arnold press / Machine'},
-        {name:'Élév. lat.',sets:'4×12-15',key:'Élév. lat.',alt:'Cable latéral unilatéral'},
-        {name:'BiSet — Face pull + Oiseau',sets:'3×(12+12)',key:'Face pull',biset:true,alt:'Band pull-apart si pas de poulie'},
-      ]},
-    ]},
-  pull:{label:'PULL',short:'PLL',sub:'Dos · Abdos · Cou',warn:null,
-    blocks:[
-      {label:'Échauffement',exos:[
-        {name:'Good morning',sets:'2×15 léger',key:'Good morning',alt:'Superman / Hyperextension'},
-      ]},
-      {label:'Dos',exos:[
-        {name:'Tractions — EMOM ou lestées',sets:'EMOM 10 min',bw:true,alt:'Tirage poulie · Supination si épaule'},
-        {name:'Rowing (barre ou halt.)',sets:'4×8-10',key:'Rowing barre',alt:'HOME barre · BUREAU poulie basse · PA halt.'},
-        {name:'Tirage poulie haute',sets:'3×10-12',key:'Tirage poulie',alt:'Tractions supination si pas de poulie'},
-      ]},
-      {label:'Abdos',exos:[
-        {name:'Crunch lesté',sets:'4×15-20',bw:true,alt:'Cable crunch (Bureau)'},
-        {name:'Relevé de jambes',sets:'3×15',bw:true,alt:'Sol si pas de barre'},
-        {name:'Gainage planche',sets:'3×45s',bw:true,alt:'Gainage latéral / Dead bug'},
-      ]},
-      {label:'Cou',exos:[
-        {name:'Flexion + Extension cou',sets:'3×15 chaque',bw:true,alt:'Harnais si dispo'},
-        {name:'Latéral cou',sets:'2×12/côté',bw:true,alt:'Résistance manuelle'},
-        {name:'Shrugs',sets:'3×15',key:'Rowing halt.',alt:'Barre / KB Bureau'},
-      ]},
-    ]},
-  leg:{label:'LEG',short:'LEG',sub:'Quad · Ischio · Fessiers',
-    warn:'Vélo 10 min avant · Post-ménisque : excentrique lent',
-    blocks:[
-      {label:'Échauffement',exos:[{name:'Vélo 10 min',sets:'Modéré',bw:true,alt:'Rameur 8 min'}]},
-      {label:'Quad — lourd',exos:[{name:'Squat barre',sets:'4×8-10',key:'Squat barre',alt:'Belt squat (Bureau)'}]},
-      {label:'Quad — accessoires',exos:[
-        {name:'Fentes avant',sets:'3×10/jambe',key:'Fentes avant',alt:'Fentes marchées / Step-up'},
-        {name:'Box jump',sets:'4×8',bw:true,alt:'Step-up lesté si genou sensible'},
-      ]},
-      {label:'Ischio / Fessiers',exos:[
-        {name:'RDL',sets:'4×10-12',key:'RDL',alt:'Leg curl machine (Bureau)'},
-        {name:'Fentes bulgares',sets:'3×10/jambe',key:'Fentes bulgares',alt:'Step-up lesté'},
-      ]},
-      {label:'Adducteurs + Mollets',exos:[
-        {name:'Adducteur / élastique',sets:'3×15-20',bw:true,alt:'Machine Bureau · Sumo squat'},
-        {name:'Mollets',sets:'4×20',bw:true,alt:'Chargés si possible'},
-      ]},
-    ]},
-  bras:{label:'BRAS',short:'BRS',sub:'Biceps · Triceps · WOD',warn:null,
-    blocks:[
-      {label:'BiSet 1 — sans repos',exos:[
-        {name:'A1 — Curl EZ allongé',sets:'4×10-12',key:'Curl EZ',biset:true,alt:'Curl halt. incliné'},
-        {name:'A2 — Skull crusher EZ',sets:'4×10-12',key:'Skull crusher EZ',biset:true,alt:'Triceps poulie (Bureau)'},
-      ]},
-      {label:'BiSet 2',exos:[
-        {name:'B1 — Curl marteau',sets:'3×10-12',key:'Curl marteau',biset:true,alt:'Curl câble (Bureau)'},
-        {name:'B2 — Ext. triceps halt.',sets:'3×12-15',key:'Ext. triceps',biset:true,alt:'Dips lestés (Bureau)'},
-      ]},
-    ],
-    wod:[
-      {icon:'🚣',name:'Rameur',desc:'4×4 min / 2 min repos',avail:'Bureau'},
-      {icon:'🚴',name:'Vélo',desc:'5×3 min / 90s repos',avail:'Bureau ou PA'},
-      {icon:'⛷️',name:'Skierg',desc:'6×250m / 90s repos',avail:'Bureau'},
-      {icon:'🔄',name:'AMRAP Cindy 20 min',desc:'5 tractions · 10 pompes · 15 squats',avail:'Partout'},
-      {icon:'⚡',name:'EMOM 12 min',desc:'Impaires : 8 tractions · Paires : 10 pompes',avail:'Partout'},
-    ]},
-};
+function save() {
+  DATA.profil.situation = val('pSituation');
+  DATA.profil.enfants = numVal('pEnfants');
+  DATA.profil.gardeAlt = numVal('pGardeAlt');
+  DATA.profil.statut = val('pStatut');
+  DATA.profil.year = parseInt(val('pYear')) || 2025;
 
-const ORDER=['push','pull','leg','bras'];
-const MOBILITE=[
-  {name:'Pigeon au sol',dur:'45s/côté',zone:'Fessier + hanche — post-ménisque'},
-  {name:'Étirement ischio',dur:'35s/côté',zone:'Ischios · jambe tendue'},
-  {name:'Cat-cow',dur:'10 reps',zone:'Lombaires · lent, respire'},
-  {name:"Child's pose",dur:'45s',zone:'Lombaires + dos'},
-  {name:'Hip flexor lunge',dur:'30s/côté',zone:'Fléchisseurs hanche'},
-  {name:'Rotation thoracique',dur:'8/côté',zone:'Colonne · genoux fléchis'},
-  {name:'Extensions lombaires',dur:'3×15',zone:'Lombaires · banc déclinaison'},
+  DATA.revenus.solde = numVal('rSolde');
+  DATA.revenus.conjoint = numVal('rConjoint');
+  DATA.revenus.pre = numVal('rPRE');
+  DATA.revenus.icr = numVal('rICR');
+  DATA.revenus.autres = numVal('rAutres');
+  DATA.revenus.icm = numVal('rICM');
+  DATA.revenus.ijat = numVal('rIJAT');
+  DATA.revenus.isse = numVal('rISSE');
+  DATA.revenus.opex = numVal('rOPEX');
+  DATA.revenus.scpi = numVal('rSCPI');
+  DATA.revenus.pea = numVal('rPEA');
+  DATA.revenus.dividendes = numVal('rDividendes');
+  DATA.revenus.interets = numVal('rInterets');
+
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  refresh();
+}
+
+function val(id){ return document.getElementById(id)?.value || ''; }
+function numVal(id){ return parseFloat(document.getElementById(id)?.value) || 0; }
+
+function loadForm() {
+  if (DATA.profil.situation) document.getElementById('pSituation').value = DATA.profil.situation;
+  if (DATA.profil.enfants !== undefined) document.getElementById('pEnfants').value = DATA.profil.enfants;
+  if (DATA.profil.gardeAlt !== undefined) document.getElementById('pGardeAlt').value = DATA.profil.gardeAlt;
+  if (DATA.profil.statut) document.getElementById('pStatut').value = DATA.profil.statut;
+  if (DATA.profil.year) document.getElementById('pYear').value = DATA.profil.year;
+
+  const map = {solde:'rSolde',conjoint:'rConjoint',pre:'rPRE',icr:'rICR',autres:'rAutres',
+    icm:'rICM',ijat:'rIJAT',isse:'rISSE',opex:'rOPEX',scpi:'rSCPI',pea:'rPEA',
+    dividendes:'rDividendes',interets:'rInterets'};
+  for (const k in map) {
+    if (DATA.revenus[k]) document.getElementById(map[k]).value = DATA.revenus[k];
+  }
+}
+
+// ═══ FISCAL ═══
+const TRANCHES = [
+  { min:0, max:11497, taux:0 },
+  { min:11497, max:29315, taux:0.11 },
+  { min:29315, max:83823, taux:0.30 },
+  { min:83823, max:180294, taux:0.41 },
+  { min:180294, max:Infinity, taux:0.45 }
 ];
+const PLAFOND_ABATT = 14171;
 
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-let S={
-  lieu:'HOME',week:1,currentWorkout:null,
-  sessionDone:{},exDone:{},perf:{},derog:{},
-  selectedWod:null,mobOpen:false,
-  poids:JSON.parse(JSON.stringify(DEFAULT_POIDS)),
-  lieux:['HOME','BUREAU','PA'],
-  history:[],
-  timerDuration:120,
-};
-let chartKey='Dév. couché';
-
-function save(){try{localStorage.setItem('prog4',JSON.stringify(S))}catch(e){}}
-function load(){
-  try{
-    const d=JSON.parse(localStorage.getItem('prog4'));
-    if(d){
-      const p=Object.assign({},JSON.parse(JSON.stringify(DEFAULT_POIDS)),d.poids||{});
-      S={...S,...d,poids:p};
-      if(!S.lieux||!S.lieux.length) S.lieux=['HOME','BUREAU','PA'];
-    }
-  }catch(e){}
+function calculerParts() {
+  const s = DATA.profil.situation || 'celibataire';
+  const enf = DATA.profil.enfants || 0;
+  const alt = DATA.profil.gardeAlt || 0;
+  let parts = (s === 'marie') ? 2 : 1;
+  const pleine = Math.max(0, enf - alt);
+  if (pleine >= 1) parts += 0.5;
+  if (pleine >= 2) parts += 0.5;
+  if (pleine >= 3) parts += (pleine - 2);
+  parts += alt * 0.25;
+  return parts;
 }
 
-function getPoids(key,lieu,week){
-  const e=S.poids[key]; if(!e) return null;
-  const base=e[lieu]||0; if(!base) return null;
-  return Math.round(base+(week-1)*(e.inc||0));
-}
-function getDispWeight(key,idx,sid){
-  const auto=key?getPoids(key,S.lieu,S.week):null;
-  const d=S.derog[sid]&&S.derog[sid][idx]!=null?S.derog[sid][idx]:null;
-  return {auto,display:d!==null?d:auto,isDerog:d!==null};
+function calculerImpot(revenu, parts) {
+  const q = revenu / parts;
+  let ipp = 0;
+  for (const t of TRANCHES) {
+    if (q > t.min) ipp += (Math.min(q, t.max) - t.min) * t.taux;
+  }
+  let impot = ipp * parts;
+  const s = DATA.profil.situation || 'celibataire';
+  const seuil = (s === 'marie') ? 3277 : 1982;
+  const forfait = (s === 'marie') ? 1444 : 873;
+  if (impot < seuil) {
+    const decote = Math.max(0, forfait - impot * 0.4525);
+    impot = Math.max(0, impot - decote);
+  }
+  return impot;
 }
 
-// ═══════════════════════════════════════
-// NAV
-// ═══════════════════════════════════════
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const nb=document.getElementById('nav-'+id);
-  if(nb) nb.classList.add('active');
-  document.getElementById('main-nav').style.display='flex';
-  document.getElementById('timer-fab').classList.remove('visible');
-  if(id==='home') renderHome();
-  if(id==='history') renderHistory();
-  if(id==='settings') renderSettings();
+function getTMI(revenu, parts) {
+  const q = revenu / parts;
+  for (const t of TRANCHES) if (q >= t.min && q < t.max) return t.taux;
+  return 0.45;
 }
-function openWorkout(sid){
-  S.currentWorkout=sid;
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-workout').classList.add('active');
-  document.getElementById('main-nav').style.display='none';
-  document.getElementById('timer-fab').classList.add('visible');
-  renderWorkout();
-}
-function goHome(){document.getElementById('timer-fab').classList.remove('visible');showScreen('home');}
 
-// ═══════════════════════════════════════
-// LIEU SCROLLER
-// ═══════════════════════════════════════
-function renderLieuScroll(){
-  const el=document.getElementById('lieu-scroll');
-  let html='';
-  S.lieux.forEach(l=>{
-    html+=`<div class="lieu-chip${l===S.lieu?' active':''}" onclick="setLieu('${l}')">
-      <span class="pin">📍</span>${l}
-    </div>`;
+// ═══ PLANNING ═══
+const REPAS_PAR_TYPE = { jour:0, nuit:1, h24:2, maison:0 };
+const LABELS_TYPE = { jour:'12h Jour', nuit:'12h Nuit', h24:'24h', maison:'Maison' };
+const ICONS_TYPE = { jour:'🌤', nuit:'🌙', h24:'⚡', maison:'🏠' };
+
+let currentPlanMonth = new Date().getMonth();
+let currentPlanYear = new Date().getFullYear();
+let selectedDay = null;
+let bulkWeek = { 0:'maison', 1:'maison', 2:'maison', 3:'maison', 4:'maison', 5:'maison', 6:'maison' };
+
+function changeYear() {
+  DATA.profil.year = parseInt(val('pYear'));
+  currentPlanYear = DATA.profil.year;
+  save();
+  renderCalendar();
+}
+
+function getPlanKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function renderCalendar() {
+  const mois = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('planningMonth').textContent = mois[currentPlanMonth] + ' ' + currentPlanYear;
+
+  const grid = document.getElementById('calGrid');
+  const dows = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  const firstDay = new Date(currentPlanYear, currentPlanMonth, 1);
+  let dow = firstDay.getDay(); // 0 = dim, 1 = lun...
+  dow = dow === 0 ? 6 : dow - 1; // convert to Lun=0
+  for (let i = 0; i < dow; i++) html += '<div class="cal-day empty"></div>';
+
+  const daysInMonth = new Date(currentPlanYear, currentPlanMonth + 1, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === currentPlanYear && today.getMonth() === currentPlanMonth;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = getPlanKey(currentPlanYear, currentPlanMonth, d);
+    const type = DATA.planning[key] || '';
+    const isToday = isCurrentMonth && today.getDate() === d;
+    const cls = ['cal-day', type, isToday ? 'today' : ''].filter(Boolean).join(' ');
+    const icon = ICONS_TYPE[type] || '';
+    html += `<div class="${cls}" onclick="openPlanModal(${d})"><div class="cal-day-num">${d}</div><div class="cal-day-icon">${icon}</div></div>`;
+  }
+
+  grid.innerHTML = html;
+  refreshPlanningStats();
+}
+
+function prevMonth() {
+  currentPlanMonth--;
+  if (currentPlanMonth < 0) { currentPlanMonth = 11; currentPlanYear--; }
+  renderCalendar();
+}
+
+function nextMonth() {
+  currentPlanMonth++;
+  if (currentPlanMonth > 11) { currentPlanMonth = 0; currentPlanYear++; }
+  renderCalendar();
+}
+
+function openPlanModal(day) {
+  selectedDay = day;
+  const date = new Date(currentPlanYear, currentPlanMonth, day);
+  const options = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  document.getElementById('planModalDate').textContent = date.toLocaleDateString('fr-FR', options);
+  const key = getPlanKey(currentPlanYear, currentPlanMonth, day);
+  const current = DATA.planning[key] || '';
+  document.querySelectorAll('.plan-choice').forEach(c => {
+    c.classList.toggle('selected', c.dataset.type === current);
   });
-  html+=`<button class="lieu-add" onclick="showScreen('settings');setTimeout(()=>document.getElementById('lieu-section').scrollIntoView({behavior:'smooth'}),300)">+ Lieu</button>`;
-  el.innerHTML=html;
+  document.getElementById('modalPlanning').classList.add('open');
 }
 
-// ═══════════════════════════════════════
-// HOME
-// ═══════════════════════════════════════
-function renderHome(){
-  document.getElementById('home-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('wkNum').textContent=S.week;
-  renderLieuScroll();
-  const nextSid=ORDER.find(s=>!S.sessionDone[s])||ORDER[0];
-  let html='';
-  ORDER.forEach(sid=>{
-    const sess=SESSIONS_DEF[sid];
-    const done=!!S.sessionDone[sid];
-    const isCurrent=sid===nextSid;
-    const exDoneMap=S.exDone[sid]||{};
-    const allExos=sess.blocks.flatMap(b=>b.exos);
-    const doneCount=allExos.filter((_,i)=>exDoneMap[i]).length;
-    const pct=allExos.length?Math.round(doneCount/allExos.length*100):0;
-    const statusTxt=done?'✓ Fait':(isCurrent?'→ Maintenant':'À venir');
-    html+=`<div class="session-card${done?' done-card':''}${isCurrent?' current':''}" onclick="openWorkout('${sid}')">
-      <div class="sc-inner">
-        <div class="sc-icon">${sess.short}</div>
-        <div class="sc-info">
-          <div class="sc-name">${sess.label}</div>
-          <div class="sc-sub">${sess.sub}</div>
-        </div>
-        <div class="sc-status">${statusTxt}</div>
-        <div class="sc-chevron">›</div>
-      </div>
-      <div class="sc-bar"><div class="sc-progress" style="width:${pct}%"></div></div>
-    </div>`;
+function setDayType(type) {
+  if (!selectedDay) return;
+  const key = getPlanKey(currentPlanYear, currentPlanMonth, selectedDay);
+  DATA.planning[key] = type;
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  closePlanModal();
+  renderCalendar();
+  refresh();
+}
+
+function clearDay() {
+  if (!selectedDay) return;
+  const key = getPlanKey(currentPlanYear, currentPlanMonth, selectedDay);
+  delete DATA.planning[key];
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  closePlanModal();
+  renderCalendar();
+  refresh();
+}
+
+function closePlanModal() {
+  document.getElementById('modalPlanning').classList.remove('open');
+  selectedDay = null;
+}
+
+function clearMonth() {
+  if (!confirm(`Effacer tous les jours de ce mois ?`)) return;
+  const daysInMonth = new Date(currentPlanYear, currentPlanMonth + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    delete DATA.planning[getPlanKey(currentPlanYear, currentPlanMonth, d)];
+  }
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  renderCalendar();
+  refresh();
+}
+
+function clearAll() {
+  if (!confirm('Effacer toute l\'année de planning ? Irréversible.')) return;
+  DATA.planning = {};
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  renderCalendar();
+  refresh();
+}
+
+function refreshPlanningStats() {
+  const year = DATA.profil.year || currentPlanYear;
+  let travaille = 0, repas = 0, nuit = 0, h24 = 0;
+  Object.keys(DATA.planning).forEach(k => {
+    if (!k.startsWith(String(year))) return;
+    const t = DATA.planning[k];
+    if (t && t !== 'maison') travaille++;
+    if (t === 'nuit') { repas += 1; nuit++; }
+    if (t === 'h24') { repas += 2; h24++; }
+    if (t === 'jour') repas += 0;
   });
-  document.getElementById('session-cards').innerHTML=html;
+  document.getElementById('statJours').textContent = travaille;
+  document.getElementById('statRepas').textContent = repas;
+  document.getElementById('statMontant').textContent = fmt(repas * REPAS_FORFAIT);
+  document.getElementById('statNuit').textContent = nuit;
+  document.getElementById('stat24').textContent = h24;
 }
 
-// ═══════════════════════════════════════
-// WORKOUT
-// ═══════════════════════════════════════
-function renderWorkout(){
-  const sid=S.currentWorkout;
-  const sess=SESSIONS_DEF[sid];
-  const doneMap=S.exDone[sid]||{};
-  const perfMap=S.perf[sid]||{};
-  const allExos=sess.blocks.flatMap(b=>b.exos);
-  const doneCount=allExos.filter((_,i)=>doneMap[i]).length;
-  const pct=allExos.length?Math.round(doneCount/allExos.length*100):0;
-  const circ=94.2,offset=circ-(pct/100)*circ;
-  document.getElementById('wk-title').textContent=sess.label;
-  document.getElementById('wk-ring-val').setAttribute('stroke-dashoffset',offset);
-  document.getElementById('wk-pct').textContent=pct+'%';
-  const vb=document.getElementById('validate-btn');
-  const isDone=!!S.sessionDone[sid];
-  if(isDone){vb.className='validate-btn done-mode';vb.textContent='✓ Validée — Séance suivante →';}
-  else{vb.className='validate-btn';vb.textContent=`Valider ${sess.label}`;}
-
-  let html='';
-  if(sess.warn) html+=`<div class="warn-box">⚠ ${sess.warn}</div>`;
-
-  // Lieu badge
-  html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
-    <span style="font-size:11px;color:var(--txt3)">📍</span>
-    <span style="font-size:11px;font-weight:700;color:var(--txt2)">${S.lieu}</span>
-    <span style="font-size:11px;color:var(--txt3)">·</span>
-    <span style="font-size:11px;color:var(--txt3)">Semaine ${S.week}</span>
-  </div>`;
-
-  let gi=0;
-  for(const block of sess.blocks){
-    html+=`<div class="block-lbl">${block.label}</div>`;
-    for(const exo of block.exos){
-      const idx=gi++;
-      const done=!!doneMap[idx];
-      const pf=perfMap[idx]||{kg:'',rpe:''};
-      const {auto,display,isDerog}=getDispWeight(exo.key||null,idx,sid);
-      const wtStr=display!=null?display:(exo.bw?'PC':'—');
-      html+=`<div class="ex-card${done?' done':''}" id="ex-${idx}">
-        <div class="ex-row" onclick="toggleExpand(${idx})">
-          <div class="ex-check" onclick="event.stopPropagation();toggleExo(${idx})">${done?'✓':''}</div>
-          <div class="ex-body">
-            ${exo.biset?'<div class="ex-biset">Biset</div>':''}
-            <div class="ex-name">${exo.name}</div>
-            <div class="ex-sets">${exo.sets}</div>
-          </div>
-          <div class="ex-right">
-            <div class="ex-wt">${wtStr}${display!=null?'<small>kg</small>':''}</div>
-            ${isDerog?'<div class="derog-badge">DÉROG</div>':''}
-          </div>
-        </div>
-        <div class="ex-alt">↗ ${exo.alt}</div>
-        <div class="ex-extra">
-          <div class="perf-row">
-            <input class="perf-input" type="number" placeholder="kg réel" value="${pf.kg}"
-              onchange="savePerf(${idx},'kg',this.value)" inputmode="decimal">
-            <div class="rpe-sel">
-              ${[6,7,8,9,10].map(r=>`<div class="rpe-btn${pf.rpe==r?' active':''}" onclick="savePerf(${idx},'rpe',${r})">${r}</div>`).join('')}
-            </div>
-          </div>
-          ${auto!=null?`<div class="derog-row">
-            <span class="derog-label">⚡ Dérog</span>
-            <input class="derog-input" type="number" placeholder="${auto}kg"
-              value="${isDerog?display:''}" onchange="saveDerog(${idx},this.value)" inputmode="decimal">
-            <span style="font-size:11px;color:var(--txt3)">kg</span>
-            ${isDerog?`<button class="derog-reset" onclick="resetDerog(${idx})">Annuler</button>`:''}
-          </div>`:''}
-        </div>
-      </div>`;
-    }
-  }
-
-  if(sess.wod){
-    html+=`<div class="block-lbl">WOD / Ergo — choisir</div>`;
-    sess.wod.forEach((w,i)=>{
-      const sel=S.selectedWod===i;
-      html+=`<div class="wod-opt${sel?' selected':''}" onclick="selWod(${i})">
-        <span class="wod-ico">${w.icon}</span>
-        <div class="wod-info">
-          <div class="wod-name">${w.name}</div>
-          <div class="wod-desc">${w.desc}</div>
-          <div class="wod-avail">📍 ${w.avail}</div>
-        </div>${sel?'<span style="color:var(--txt2)">✓</span>':''}
-      </div>`;
-    });
-  }
-
-  html+=`<div class="mob-toggle${S.mobOpen?' open':''}" onclick="toggleMob()">
-    <span>Mobilité du jour</span><span class="mob-chev">▲</span>
-  </div>
-  <div class="mob-items${S.mobOpen?' open':''}">
-    ${MOBILITE.map(m=>`<div class="mob-item">
-      <div><div class="mob-name">${m.name}</div><div class="mob-zone">${m.zone}</div></div>
-      <div class="mob-dur">${m.dur}</div>
-    </div>`).join('')}
-  </div>`;
-
-  document.getElementById('wk-content').innerHTML=html;
+function calculerRepasAnnee() {
+  const year = DATA.profil.year || new Date().getFullYear();
+  let repas = 0;
+  Object.keys(DATA.planning).forEach(k => {
+    if (!k.startsWith(String(year))) return;
+    repas += REPAS_PAR_TYPE[DATA.planning[k]] || 0;
+  });
+  return repas;
 }
 
-function toggleExpand(idx){const c=document.getElementById('ex-'+idx);if(c)c.classList.toggle('expanded');}
-function toggleExo(idx){
-  const sid=S.currentWorkout;
-  if(!S.exDone[sid])S.exDone[sid]={};
-  S.exDone[sid][idx]=!S.exDone[sid][idx];
-  save();renderWorkout();
-}
-function savePerf(idx,field,val){
-  const sid=S.currentWorkout;
-  if(!S.perf[sid])S.perf[sid]={};
-  if(!S.perf[sid][idx])S.perf[sid][idx]={kg:'',rpe:''};
-  S.perf[sid][idx][field]=val;save();
-  if(field==='rpe')renderWorkout();
-}
-function saveDerog(idx,val){
-  const sid=S.currentWorkout;
-  if(!S.derog[sid])S.derog[sid]={};
-  S.derog[sid][idx]=val===''?null:parseFloat(val);
-  save();renderWorkout();
-}
-function resetDerog(idx){
-  const sid=S.currentWorkout;
-  if(S.derog[sid])delete S.derog[sid][idx];
-  save();renderWorkout();
-}
-function selWod(i){S.selectedWod=S.selectedWod===i?null:i;save();renderWorkout();}
-function toggleMob(){S.mobOpen=!S.mobOpen;save();renderWorkout();}
-
-function validateSession(){
-  const sid=S.currentWorkout;
-  if(S.sessionDone[sid]){
-    const idx=ORDER.indexOf(sid);
-    const next=ORDER[(idx+1)%ORDER.length];
-    if(next===ORDER[0]){
-      showToast('Cycle complet — Semaine '+(S.week+1));
-      S.week=Math.min(10,S.week+1);
-      S.sessionDone={};S.exDone={};S.perf={};S.derog={};
-    } else {
-      showToast('→ '+SESSIONS_DEF[next].label);
-    }
-    S.currentWorkout=next;save();renderWorkout();return;
-  }
-  S.sessionDone[sid]=true;
-  const allExos=SESSIONS_DEF[sid].blocks.flatMap(b=>b.exos);
-  if(!S.exDone[sid])S.exDone[sid]={};
-  allExos.forEach((_,i)=>{if(!S.exDone[sid][i])S.exDone[sid][i]=true;});
-  const entry={
-    date:new Date().toISOString(),sid,lieu:S.lieu,week:S.week,
-    label:SESSIONS_DEF[sid].label,
-    exos:allExos.map((ex,i)=>({
-      name:ex.name,
-      kg:(S.perf[sid]&&S.perf[sid][i])?S.perf[sid][i].kg:'',
-      rpe:(S.perf[sid]&&S.perf[sid][i])?S.perf[sid][i].rpe:'',
-    }))
-  };
-  S.history.unshift(entry);
-  showToast(SESSIONS_DEF[sid].label+' validée ✓');
-  save();renderWorkout();
+// ═══ BULK MODAL ═══
+function openBulkModal() {
+  const dows = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  document.getElementById('bulkWeek').innerHTML = dows.map((d, i) => `
+    <div style="margin-bottom:10px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase">${d}</div>
+      <select onchange="bulkWeek[${i}]=this.value" style="width:100%">
+        <option value="maison" ${bulkWeek[i]==='maison'?'selected':''}>🏠 Maison</option>
+        <option value="jour" ${bulkWeek[i]==='jour'?'selected':''}>🌤 12h Jour</option>
+        <option value="nuit" ${bulkWeek[i]==='nuit'?'selected':''}>🌙 12h Nuit</option>
+        <option value="h24" ${bulkWeek[i]==='h24'?'selected':''}>⚡ 24h</option>
+      </select>
+    </div>
+  `).join('');
+  const y = DATA.profil.year || 2025;
+  document.getElementById('bulkFrom').value = y + '-01-01';
+  document.getElementById('bulkTo').value = y + '-12-31';
+  document.getElementById('modalBulk').classList.add('open');
 }
 
-// ═══════════════════════════════════════
-// TIMER
-// ═══════════════════════════════════════
-let timerInterval=null,timerRemaining=120,timerTotal=120,timerRunning=false;
-function openTimer(){document.getElementById('timer-overlay').classList.add('show');updateTimerDisplay();}
-function closeTimer(){document.getElementById('timer-overlay').classList.remove('show');}
-function handleOverlayClick(e){if(e.target===document.getElementById('timer-overlay'))closeTimer();}
-function setPreset(sec){
-  document.querySelectorAll('.t-preset').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  stopTimer();timerTotal=sec;timerRemaining=sec;
-  document.getElementById('custom-min').value='';
-  document.getElementById('custom-sec').value='';
-  updateTimerDisplay();
-}
-function setCustom(){
-  const m=parseInt(document.getElementById('custom-min').value)||0;
-  const s=parseInt(document.getElementById('custom-sec').value)||0;
-  const total=m*60+s;
-  if(total>0){document.querySelectorAll('.t-preset').forEach(b=>b.classList.remove('active'));stopTimer();timerTotal=total;timerRemaining=total;updateTimerDisplay();}
-}
-function toggleTimer(){timerRunning?pauseTimer():startTimer();}
-function startTimer(){
-  if(timerRemaining<=0)timerRemaining=timerTotal;
-  timerRunning=true;
-  document.getElementById('timer-start-btn').textContent='⏸ Pause';
-  document.getElementById('timer-fab').classList.add('running');
-  timerInterval=setInterval(()=>{
-    timerRemaining--;updateTimerDisplay();
-    if(timerRemaining<=0){
-      clearInterval(timerInterval);timerRunning=false;
-      document.getElementById('timer-start-btn').textContent='▶ Start';
-      document.getElementById('timer-fab').classList.remove('running');
-      if(navigator.vibrate)navigator.vibrate([200,100,200,100,400]);
-      showToast('Repos terminé — Go !');
-    }
-  },1000);
-}
-function pauseTimer(){clearInterval(timerInterval);timerRunning=false;document.getElementById('timer-start-btn').textContent='▶ Reprendre';document.getElementById('timer-fab').classList.remove('running');}
-function stopTimer(){clearInterval(timerInterval);timerRunning=false;document.getElementById('timer-start-btn').textContent='▶ Start';document.getElementById('timer-fab').classList.remove('running');}
-function resetTimer(){stopTimer();timerRemaining=timerTotal;updateTimerDisplay();}
-function updateTimerDisplay(){
-  const m=Math.floor(timerRemaining/60),s=timerRemaining%60;
-  const el=document.getElementById('timer-count');
-  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.className='timer-count'+(timerRemaining<=10&&timerRemaining>0?' warning':'')+(timerRemaining<=0?' done-clr':'');
-  const pct=timerTotal>0?(timerRemaining/timerTotal)*100:0;
-  const bar=document.getElementById('timer-bar');
-  bar.style.width=pct+'%';
-  bar.style.background=timerRemaining<=10?'var(--warn)':'var(--txt2)';
+function closeBulkModal() {
+  document.getElementById('modalBulk').classList.remove('open');
 }
 
-// ═══════════════════════════════════════
-// HISTORY + CHARTS
-// ═══════════════════════════════════════
-function renderHistory(){
-  const con=document.getElementById('hist-content');
-  const chartableKeys=Object.keys(S.poids);
-  let html=`<div class="chart-wrap">
-    <div style="font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:10px;letter-spacing:.5px">PROGRESSION</div>
-    <div class="chart-selector">
-      ${chartableKeys.map(k=>`<button class="chart-btn${k===chartKey?' active':''}" onclick="setChartKey('${k}')">${k}</button>`).join('')}
-    </div>`;
+function applyBulk() {
+  const from = new Date(document.getElementById('bulkFrom').value);
+  const to = new Date(document.getElementById('bulkTo').value);
+  const overwrite = document.getElementById('bulkOverwrite').checked;
+  if (!from || !to || from > to) { alert('Dates invalides.'); return; }
 
-  const dataPoints=[];
-  S.history.slice().reverse().forEach(e=>{
-    e.exos.forEach(ex=>{
-      if(ex.name.toLowerCase().includes(chartKey.split(' ')[0].toLowerCase())&&ex.kg){
-        dataPoints.push({kg:parseFloat(ex.kg),date:new Date(e.date)});
+  const cur = new Date(from);
+  let count = 0;
+  while (cur <= to) {
+    const dow = cur.getDay() === 0 ? 6 : cur.getDay() - 1;
+    const type = bulkWeek[dow];
+    const key = getPlanKey(cur.getFullYear(), cur.getMonth(), cur.getDate());
+    if (overwrite || !DATA.planning[key]) {
+      if (type !== 'maison' || overwrite) {
+        DATA.planning[key] = type;
+        count++;
       }
-    });
-  });
-
-  if(dataPoints.length<2){
-    html+=`<div class="chart-empty">Pas encore assez de données pour ${chartKey}</div>`;
-  } else {
-    const maxKg=Math.max(...dataPoints.map(d=>d.kg));
-    const minKg=Math.min(...dataPoints.map(d=>d.kg));
-    const range=maxKg-minKg||1;
-    const w=300,h=100,pad=8;
-    const pts=dataPoints.map((d,i)=>({
-      x:pad+(i/(dataPoints.length-1))*(w-pad*2),
-      y:h-pad-(d.kg-minKg)/range*(h-pad*2),
-      kg:d.kg
-    }));
-    const pathD='M'+pts.map(p=>`${p.x},${p.y}`).join(' L');
-    const areaD=pathD+` L${pts[pts.length-1].x},${h} L${pts[0].x},${h} Z`;
-    html+=`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:120px">
-      <defs>
-        <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#8080A0" stop-opacity=".25"/>
-          <stop offset="100%" stop-color="#8080A0" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="${areaD}" fill="url(#cg)"/>
-      <path d="${pathD}" fill="none" stroke="#8080A0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      ${pts.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="#8080A0"/>
-        ${i===pts.length-1?`<text x="${p.x}" y="${p.y-7}" text-anchor="middle" fill="#ECECF4" font-size="9" font-weight="700">${p.kg}kg</text>`:''}`).join('')}
-      <text x="${pad}" y="${h-2}" fill="#404058" font-size="8">${minKg}kg</text>
-      <text x="${pad}" y="${pad+7}" fill="#404058" font-size="8">${maxKg}kg</text>
-    </svg>`;
+    }
+    cur.setDate(cur.getDate() + 1);
   }
-  html+=`</div>`;
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  closeBulkModal();
+  renderCalendar();
+  refresh();
+  alert(count + ' jours mis à jour.');
+}
 
-  if(!S.history.length){
-    con.innerHTML=html+`<div class="hist-empty"><div class="icon">📊</div><div>Aucune séance encore</div></div>`;
+// ═══ REFRESH ═══
+function refresh() {
+  const parts = calculerParts();
+  document.getElementById('pParts').value = parts + ' parts';
+
+  const revenu = (DATA.revenus.solde || 0) + (DATA.revenus.conjoint || 0)
+                + (DATA.revenus.pre || 0) + (DATA.revenus.icr || 0)
+                + (DATA.revenus.autres || 0) + (DATA.revenus.scpi || 0)
+                + (DATA.revenus.pea || 0) + (DATA.revenus.dividendes || 0)
+                + (DATA.revenus.interets || 0);
+  const tmi = getTMI(revenu, parts);
+
+  const parCat = {};
+  (DATA.factures || []).forEach(f => { parCat[f.cat] = (parCat[f.cat] || 0) + (f.montant || 0); });
+
+  const totalRepas = calculerRepasAnnee();
+  const montantRepas = totalRepas * REPAS_FORFAIT;
+
+  const fraisReels = (parCat.materiel || 0) + (parCat.demenagement || 0) + montantRepas;
+  const forfait10 = Math.min(revenu * 0.10, PLAFOND_ABATT);
+
+  const donsBase = parCat.don || 0;
+  const donsRetenu = Math.min(donsBase, revenu * 0.20);
+  const reducDons = donsRetenu * 0.66;
+
+  const gardeBase = parCat.garde || 0;
+  const gardeRetenu = Math.min(gardeBase, (DATA.profil.enfants || 0) * 3500);
+  const creditGarde = gardeRetenu * 0.50;
+
+  const servicesRetenu = Math.min(parCat.services || 0, 12000);
+  const creditServices = servicesRetenu * 0.50;
+
+  const perBase = parCat.per || 0;
+  const plafondPER = Math.max(4637, Math.min(revenu * 0.10, 37094));
+  const perRetenu = Math.min(perBase, plafondPER);
+
+  const pension = parCat.pension || 0;
+  const pmeRetenu = Math.min(parCat.pme || 0, 50000);
+  const reducPME = pmeRetenu * 0.18;
+
+  const useFraisReels = fraisReels > forfait10;
+  const revenuAjuste = useFraisReels ? revenu + (DATA.revenus.icm || 0) : revenu;
+  const meilleurFrais = Math.max(fraisReels, forfait10);
+  const revenuNet = Math.max(0, revenuAjuste - meilleurFrais - perRetenu - pension);
+  const impotAvant = calculerImpot(Math.max(0, revenu - forfait10), parts);
+  const impotApres = calculerImpot(revenuNet, parts);
+  const economieRevenu = Math.max(0, impotAvant - impotApres);
+  const totalReducCredits = reducDons + creditGarde + creditServices + reducPME;
+  const economieTotale = economieRevenu + totalReducCredits;
+
+  // Dashboard
+  document.getElementById('heroAmount').textContent = fmt(economieTotale);
+  document.getElementById('heroSub').textContent = economieTotale > 0 ? 'Économie estimée sur votre impôt' : 'Renseignez vos revenus, planning et écritures';
+  document.getElementById('cRevenu').textContent = revenu > 0 ? fmt(revenu) : '— €';
+  document.getElementById('cTMI').textContent = 'Tranche marginale : ' + Math.round(tmi * 100) + ' %';
+  document.getElementById('cRepas').textContent = fmt(montantRepas);
+  document.getElementById('cNbRepas').textContent = totalRepas;
+
+  if (fraisReels > forfait10) {
+    document.getElementById('cAvantage').textContent = 'Frais réels';
+    document.getElementById('cAvantage').className = 'card-value g';
+    document.getElementById('cAvantageSub').textContent = '+ ' + fmt(fraisReels - forfait10) + ' vs forfait';
+  } else {
+    document.getElementById('cAvantage').textContent = 'Forfait';
+    document.getElementById('cAvantage').className = 'card-value';
+    document.getElementById('cAvantageSub').textContent = fraisReels > 0 ? 'Manque ' + fmt(forfait10 - fraisReels) : 'Aucune écriture';
+  }
+
+  document.getElementById('cCredits').textContent = fmt(totalReducCredits);
+
+  const now = new Date();
+  const deadline = new Date(now.getFullYear() + 1, 4, 31);
+  const diff = Math.ceil((deadline - now) / 86400000);
+  document.getElementById('countdown').innerHTML = '<strong>' + diff + ' jours</strong> avant la date limite';
+
+  // Verdict box
+  const vb = document.getElementById('verdictBox');
+  if (revenu === 0) {
+    vb.innerHTML = '<div class="empty">Renseignez votre revenu dans l\'onglet <strong>Revenus</strong>.</div>';
+  } else if (fraisReels === 0) {
+    vb.innerHTML = `
+      <div class="warn-box">
+        <strong>Aucun frais réel pour l'instant.</strong> Forfait 10 % à votre avantage (${fmt(forfait10)}).
+        Pour dépasser ce seuil, remplissez votre planning (onglet <strong>Planning</strong>) et ajoutez vos achats matériel.
+      </div>
+    `;
+  } else if (fraisReels > forfait10) {
+    const gain = (fraisReels - forfait10) * tmi;
+    const icmWarn = (DATA.revenus.icm || 0) > 0 ? '<br><br>⚠️ <strong>Attention ICM :</strong> vous devez la réintégrer dans votre revenu, ce qui pourrait annuler une partie du gain.' : '';
+    vb.innerHTML = `
+      <div class="calc-verdict">
+        <strong>✅ Vous rentrez dans les frais réels.</strong><br>
+        Total frais : ${fmt(fraisReels)} vs forfait ${fmt(forfait10)}.<br>
+        Économie d'impôt estimée : <strong>${fmt(gain)}</strong> (à votre TMI de ${Math.round(tmi*100)} %).
+        ${icmWarn}
+      </div>
+    `;
+  } else {
+    const manque = forfait10 - fraisReels;
+    const pct = Math.round((fraisReels / forfait10) * 100);
+    vb.innerHTML = `
+      <div class="calc-verdict warn">
+        <strong>⚠️ Vous ne rentrez pas dans les frais réels.</strong><br>
+        Vos frais actuels (${fmt(fraisReels)}) représentent ${pct} % du forfait 10 % (${fmt(forfait10)}).<br>
+        Il vous manque <strong>${fmt(manque)}</strong> pour que la bascule devienne avantageuse.<br>
+        Restez au forfait 10 % pour cette année.
+      </div>
+    `;
+  }
+
+  // Recent factures
+  const recent = (DATA.factures || []).slice(-3).reverse();
+  document.getElementById('recentFactures').innerHTML = recent.length === 0
+    ? '<div class="empty">Aucune écriture. Ouvrez l\'onglet <strong>Écritures</strong>.</div>'
+    : recent.map(f => renderFacture(f)).join('');
+
+  renderActions(revenu, fraisReels, forfait10, tmi, parCat);
+
+  // Calcul
+  document.getElementById('calcForfaitVal').textContent = fmt(forfait10);
+  document.getElementById('calcReelsVal').textContent = fmt(fraisReels);
+
+  const verdict = document.getElementById('calcVerdict');
+  if (revenu === 0) {
+    verdict.textContent = 'Renseignez votre revenu.';
+    verdict.className = 'calc-verdict warn';
+  } else if (fraisReels > forfait10) {
+    verdict.innerHTML = '<strong>Bascule aux frais réels recommandée.</strong> Économie ~' + fmt((fraisReels - forfait10) * tmi) + '.';
+    verdict.className = 'calc-verdict';
+  } else {
+    verdict.innerHTML = '<strong>Conservation du forfait 10 %.</strong> Manque ' + fmt(forfait10 - fraisReels) + '.';
+    verdict.className = 'calc-verdict warn';
+  }
+
+  const icmAlert = document.getElementById('icmAlert');
+  if (fraisReels > forfait10 && (DATA.revenus.icm || 0) > 0) {
+    icmAlert.style.display = 'block';
+    document.getElementById('icmMont').textContent = fmt(DATA.revenus.icm);
+  } else {
+    icmAlert.style.display = 'none';
+  }
+
+  document.getElementById('detailFraisReels').innerHTML = `
+    <div class="summary-box">
+      <div class="summary-detail">
+        Matériel professionnel hors dotation : <strong>${fmt(parCat.materiel || 0)}</strong><br>
+        Repas gamelle (${totalRepas} repas × 5,45 €) : <strong>${fmt(montantRepas)}</strong><br>
+        Déménagement mutation non prise en charge : <strong>${fmt(parCat.demenagement || 0)}</strong>
+      </div>
+      <div class="summary-total-line">
+        <span class="summary-total-lbl">Total frais réels</span>
+        <span class="summary-total-val">${fmt(fraisReels)}</span>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px">
+      <strong>Forfait 10 % plafonné à 14 171 €.</strong> Au-delà, seuls les frais réels justifiés sont déductibles.
+    </div>
+  `;
+
+  document.getElementById('econRevenu').textContent = fmt(Math.max(meilleurFrais - forfait10, 0) + perRetenu + pension);
+  document.getElementById('econImpot').textContent = fmt(economieRevenu);
+  document.getElementById('econReductions').textContent = fmt(totalReducCredits);
+  document.getElementById('econTMI').textContent = Math.round(tmi * 100) + ' %';
+
+  // Quotient
+  const preEl = document.getElementById('calcQuotient');
+  const pre = DATA.revenus.pre || 0;
+  if (pre > 0 && revenu > 0) {
+    const impSansQ = calculerImpot(Math.max(0, revenu - forfait10), parts);
+    const impSansPRE = calculerImpot(Math.max(0, revenu - forfait10 - pre), parts);
+    const supSansQ = impSansQ - impSansPRE;
+    const revSansPRE = Math.max(0, revenu - pre - forfait10);
+    const impBase = calculerImpot(revSansPRE, parts);
+    const impAvecQuart = calculerImpot(revSansPRE + pre/4, parts);
+    const supQuotient = 4 * (impAvecQuart - impBase);
+    const gainQ = Math.max(0, supSansQ - supQuotient);
+    preEl.innerHTML = `
+      <div class="calc-box">
+        <div class="calc-title">Simulation sur PRE de ${fmt(pre)}</div>
+        <div class="calc-rows">
+          <div class="calc-row"><div class="calc-row-label">Sans quotient</div><div class="calc-row-val">+${fmt(supSansQ)}</div></div>
+          <div class="calc-row win"><div class="calc-row-label">Avec quotient</div><div class="calc-row-val" style="color:var(--forest)">+${fmt(supQuotient)}</div></div>
+        </div>
+        <div class="calc-verdict"><strong>Économie : ${fmt(gainQ)}.</strong> Case 0XX. Art. 163-0 A CGI.</div>
+      </div>
+    `;
+  } else {
+    preEl.innerHTML = '<div class="empty">Renseignez une PRE.</div>';
+  }
+
+  // PER
+  const perEl = document.getElementById('calcPER');
+  if (revenu > 0) {
+    const valide = perBase <= plafondPER;
+    perEl.innerHTML = `
+      <div class="summary-box">
+        <div class="summary-detail">
+          <strong>Plafond PER 2025 :</strong> ${fmt(plafondPER)}<br>
+          <strong>Versements :</strong> ${fmt(perBase)}<br>
+          <strong>Déductible :</strong> ${fmt(perRetenu)}<br>
+          <strong>Économie :</strong> ${fmt(perRetenu * tmi)}
+        </div>
+        ${!valide ? '<div class="warn-box" style="margin-top:14px;margin-bottom:0"><strong>Dépassement de ' + fmt(perBase - plafondPER) + '.</strong></div>' : ''}
+      </div>
+    `;
+  } else {
+    perEl.innerHTML = '<div class="empty">Renseignez votre revenu.</div>';
+  }
+
+  // SCPI
+  const scpiEl = document.getElementById('calcSCPI');
+  const scpi = DATA.revenus.scpi || 0;
+  if (scpi > 0) {
+    const isMicro = scpi <= 15000;
+    scpiEl.innerHTML = `
+      <div class="summary-box">
+        <div class="summary-detail">
+          <strong>Revenus SCPI :</strong> ${fmt(scpi)}<br>
+          <strong>Régime :</strong> ${isMicro ? 'Micro-foncier (abattement 30 %)' : 'Réel obligatoire'}<br>
+          <strong>Base imposable :</strong> ${fmt(isMicro ? scpi * 0.7 : scpi)}<br>
+          <strong>Impôt suppl. :</strong> ${fmt((isMicro ? scpi * 0.7 : scpi) * tmi)} + 17,2 % PS
+        </div>
+      </div>
+    `;
+  } else {
+    scpiEl.innerHTML = '<div class="empty">Renseignez vos revenus SCPI.</div>';
+  }
+
+  renderChecklist(parCat, {revenu, fraisReels, forfait10, tmi, plafondPER, perRetenu, donsRetenu, gardeRetenu, servicesRetenu, pmeRetenu, montantRepas, totalRepas});
+  updateSimSliders();
+  simulate();
+}
+
+function renderFacture(f) {
+  const cats = { materiel:'📦', demenagement:'📮', garde:'👶', don:'❤', pension:'⚖', services:'🧹', per:'💼', pme:'🏢', autre:'📋' };
+  const labels = { materiel:'Matériel', demenagement:'Déménagement', garde:'Garde', don:'Don', pension:'Pension', services:'Service dom.', per:'PER', pme:'PME', autre:'Autre' };
+  return `
+    <div class="item">
+      <div class="item-icon">${cats[f.cat] || '📋'}</div>
+      <div class="item-body">
+        <div class="item-title">${escapeHtml(f.desc || 'Sans description')}</div>
+        <div class="item-meta">
+          <span>${f.date || '—'}</span>
+          <span class="cat-badge">${labels[f.cat]}</span>
+          ${f.fournisseur ? '<span>' + escapeHtml(f.fournisseur) + '</span>' : ''}
+          ${f.justif ? '<span class="sig-ok">✓ Justif</span>' : '<span class="sig-warn">⚠ Sans justif</span>'}
+        </div>
+      </div>
+      <div class="item-amount">${fmt(f.montant)}</div>
+      <div class="item-actions">
+        <button class="btn small danger" onclick="delFacture('${f.id}')">×</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderActions(revenu, fraisReels, forfait10, tmi, parCat) {
+  const actions = [];
+  if (!revenu) actions.push({ title:'Renseigner votre revenu', desc:'Onglet Revenus.' });
+  if (Object.keys(DATA.planning).length === 0) actions.push({ title:'Remplir votre planning', desc:'Cliquez sur chaque jour ou utilisez la semaine-type.' });
+  if ((DATA.factures || []).length === 0) actions.push({ title:'Ajouter vos écritures', desc:'Matériel, dons, PER…' });
+  if (fraisReels > forfait10 && revenu) actions.push({ title:'Basculer aux frais réels', desc:'Économie ~' + fmt((fraisReels - forfait10) * tmi) });
+  if (fraisReels > forfait10 && (DATA.revenus.icm || 0) > 0) actions.push({ title:'⚠ Alerte ICM', desc:'À réintégrer si frais réels.' });
+  if (DATA.revenus.ijat) actions.push({ title:'Vérifier bulletin de solde', desc:'IJAT exonérée — ne pas déclarer.' });
+  if (DATA.revenus.pre) actions.push({ title:'Quotient sur la PRE', desc:'Case 0XX.' });
+
+  const el = document.getElementById('nextActions');
+  el.innerHTML = actions.length === 0
+    ? '<div class="empty">Dossier à jour.</div>'
+    : actions.map((a, i) => `<div class="item"><div class="item-icon" style="background:var(--navy);color:#fff;font-family:'Playfair Display',serif;font-weight:700">${i+1}</div><div class="item-body"><div class="item-title">${a.title}</div><div class="item-meta" style="display:block;font-style:italic">${a.desc}</div></div></div>`).join('');
+}
+
+function renderChecklist(parCat, ctx) {
+  const items = [];
+  items.push({ id:'solde', title:'Vérifier case 1AJ', desc:'Montant : ' + fmt((DATA.revenus.solde || 0) - (DATA.revenus.pre || 0)) + '. Vérifier absence ICM/IJAT/ISSE.', case:'1AJ' });
+  if (DATA.revenus.ijat) items.push({ id:'ijat', title:'Retirer IJAT du revenu', desc:'IJAT : ' + fmt(DATA.revenus.ijat) + '. Exonérée art. 81.', case:'1AJ correction' });
+  if (DATA.revenus.icm) items.push({ id:'icm', title:'Traitement ICM', desc:'ICM : ' + fmt(DATA.revenus.icm) + '. Exonérée sauf frais réels.', case:'mémoire' });
+  if (DATA.revenus.pre) items.push({ id:'pre', title:'PRE en revenus exceptionnels', desc:'PRE : ' + fmt(DATA.revenus.pre) + '. Case 0XX pour quotient.', case:'0XX' });
+  if (ctx.fraisReels > ctx.forfait10) items.push({ id:'fr', title:'Cocher case 1AK', desc:'Total frais réels : ' + fmt(ctx.fraisReels) + '. Dont ' + fmt(ctx.montantRepas) + ' de repas (' + ctx.totalRepas + ' repas gamelle).', case:'1AK' });
+  if ((parCat.don || 0) > 0) items.push({ id:'dons', title:'Déclarer les dons', desc:'Dons : ' + fmt(parCat.don || 0) + '. Réduction : ' + fmt(ctx.donsRetenu * 0.66), case:'7UF' });
+  if ((parCat.garde || 0) > 0) items.push({ id:'garde', title:'Garde d\'enfants', desc:'Frais : ' + fmt(parCat.garde || 0) + '. Crédit : ' + fmt(ctx.gardeRetenu * 0.5), case:'7GA' });
+  if ((parCat.services || 0) > 0) items.push({ id:'services', title:'Services à domicile', desc:'Total : ' + fmt(parCat.services || 0), case:'7DB' });
+  if ((parCat.pension || 0) > 0) items.push({ id:'pension', title:'Pension alimentaire', desc:'Total : ' + fmt(parCat.pension || 0), case:'6GU' });
+  if ((parCat.per || 0) > 0) items.push({ id:'per', title:'Versements PER', desc:'Versements : ' + fmt(parCat.per || 0) + '. Déductible : ' + fmt(ctx.perRetenu), case:'6NS' });
+  if ((parCat.pme || 0) > 0) items.push({ id:'pme', title:'Investissement PME', desc:'Investi : ' + fmt(parCat.pme || 0), case:'7CF' });
+  const enf = DATA.profil.enfants || 0;
+  if (enf > 0) items.push({ id:'scol', title:'Enfants scolarisés', desc:'61 € collège / 153 € lycée / 183 € sup.', case:'7EA/EC/EF' });
+  if (DATA.revenus.scpi > 0) items.push({ id:'scpi', title:'Revenus SCPI', desc:'Revenus : ' + fmt(DATA.revenus.scpi), case:DATA.revenus.scpi <= 15000 ? '4BE' : '4BA' });
+  if (DATA.revenus.pea > 0) items.push({ id:'pea', title:'Choix PEA', desc:'Retrait imposable : ' + fmt(DATA.revenus.pea), case:'3VG/2OP' });
+
+  const el = document.getElementById('checklistItems');
+  if (items.length === 0) {
+    el.innerHTML = '<div class="empty">Ajoutez vos revenus.</div>';
+    document.getElementById('declProgress').textContent = '';
     return;
   }
-  const groups={};
-  S.history.forEach(e=>{
-    const d=new Date(e.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    if(!groups[d])groups[d]=[];groups[d].push(e);
-  });
-  for(const[date,entries] of Object.entries(groups)){
-    html+=`<div class="hist-date-label">${date}</div>`;
-    entries.forEach(e=>{
-      const withPerf=e.exos.filter(x=>x.kg||x.rpe);
-      html+=`<div class="hist-entry">
-        <div class="hist-top">
-          <div class="hist-sess">${e.label}</div>
-          <div class="hist-lieu">📍 ${e.lieu} · S${e.week}</div>
+  const done = items.filter(i => DATA.checklist[i.id]).length;
+  document.getElementById('declProgress').textContent = done + ' / ' + items.length + ' postes';
+  el.innerHTML = items.map(i => `
+    <div class="check-item ${DATA.checklist[i.id] ? 'done' : ''}">
+      <label class="check-header">
+        <input type="checkbox" ${DATA.checklist[i.id] ? 'checked' : ''} onchange="toggleCheck('${i.id}')">
+        <div class="check-content">
+          <div class="check-title">${i.title}</div>
+          <div class="check-desc">${i.desc}</div>
+          <span class="check-case">Case ${i.case}</span>
         </div>
-        <div class="hist-exos">
-          ${withPerf.length?withPerf.map(x=>`<div class="hist-exo">
-            <span class="hist-exo-name">${x.name}</span>
-            <span class="hist-exo-val">${x.kg?x.kg+'kg':''}${x.kg&&x.rpe?' · ':''}${x.rpe?'RPE '+x.rpe:''}</span>
-          </div>`).join(''):'<div style="font-size:11px;color:var(--txt3)">Aucune perf saisie</div>'}
-        </div>
-      </div>`;
-    });
+      </label>
+    </div>
+  `).join('');
+}
+
+function toggleCheck(id) {
+  DATA.checklist[id] = !DATA.checklist[id];
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  refresh();
+}
+
+function resetChecklist() {
+  if (confirm('Réinitialiser ?')) { DATA.checklist = {}; localStorage.setItem(KEY, JSON.stringify(DATA)); refresh(); }
+}
+
+// SIMULATEUR
+function updateSimSliders() {
+  const revenu = (DATA.revenus.solde || 0) + (DATA.revenus.conjoint || 0);
+  const plafondPER = Math.max(4637, Math.min(revenu * 0.10, 37094));
+  document.getElementById('simPer').max = plafondPER;
+  document.getElementById('simPerMax').textContent = 'Plafond : ' + fmt(plafondPER);
+}
+
+function simulate() {
+  const simPer = parseFloat(document.getElementById('simPer').value) || 0;
+  const simDon = parseFloat(document.getElementById('simDon').value) || 0;
+  const simPme = parseFloat(document.getElementById('simPme').value) || 0;
+
+  document.getElementById('simPerVal').textContent = fmt(simPer);
+  document.getElementById('simDonVal').textContent = fmt(simDon);
+  document.getElementById('simPmeVal').textContent = fmt(simPme);
+
+  const parts = calculerParts();
+  const revenu = (DATA.revenus.solde || 0) + (DATA.revenus.conjoint || 0) + (DATA.revenus.pre || 0);
+  const tmi = getTMI(revenu, parts);
+
+  const gainPer = simPer * tmi;
+  const gainDon = simDon * 0.66;
+  const gainPme = simPme * 0.18;
+
+  document.getElementById('simPerResult').textContent = fmt(gainPer);
+  document.getElementById('simDonResult').textContent = fmt(gainDon);
+  document.getElementById('simPmeResult').textContent = fmt(gainPme);
+
+  const impotAvant = calculerImpot(Math.max(0, revenu - Math.min(revenu * 0.10, PLAFOND_ABATT)), parts);
+  const impotApres = Math.max(0, impotAvant - gainPer - gainDon - gainPme);
+
+  document.getElementById('simImpotAvant').textContent = fmt(impotAvant);
+  document.getElementById('simImpotApres').textContent = fmt(impotApres);
+
+  const total = gainPer + gainDon + gainPme;
+  document.getElementById('simVerdict').innerHTML = total > 0
+    ? '<strong>Économie totale : ' + fmt(total) + '.</strong>'
+    : 'Ajustez les curseurs.';
+}
+
+// MODAL FACTURE
+let editingId = null;
+function showCatHint() {
+  const cat = document.getElementById('fCat').value;
+  const hint = document.getElementById('catHint');
+  const hints = {
+    materiel: '⚠️ Matériel acheté personnellement hors dotation Uniforce. Factures obligatoires.',
+    demenagement: '⚠️ Uniquement si mutation NON prise en charge par l\'ICR.',
+    don: '⚠️ Reçu fiscal obligatoire. Réduction 66 %, plafond 20 % du revenu.',
+    per: '⚠️ Plafond : 10 % du revenu ou 4 637 € minimum.',
+    pme: '⚠️ Investissement au capital d\'une PME. Réduction 18 %. Titres à conserver 5 ans.',
+  };
+  if (hints[cat]) { hint.innerHTML = hints[cat]; hint.style.display = 'block'; }
+  else hint.style.display = 'none';
+}
+
+function openFacture(id) {
+  editingId = id;
+  document.getElementById('modalTitle').textContent = id ? 'Modifier' : 'Nouvelle écriture';
+  if (id) {
+    const f = (DATA.factures || []).find(x => x.id === id);
+    if (f) {
+      document.getElementById('fCat').value = f.cat;
+      document.getElementById('fDate').value = f.date;
+      document.getElementById('fMontant').value = f.montant;
+      document.getElementById('fDesc').value = f.desc;
+      document.getElementById('fFournisseur').value = f.fournisseur;
+      document.getElementById('fNotes').value = f.notes || '';
+      document.getElementById('fJustif').checked = !!f.justif;
+    }
+  } else {
+    document.getElementById('fCat').value = 'materiel';
+    document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+    ['fMontant','fDesc','fFournisseur','fNotes'].forEach(k => document.getElementById(k).value = '');
+    document.getElementById('fJustif').checked = false;
   }
-  con.innerHTML=html;
-}
-function setChartKey(k){chartKey=k;renderHistory();}
-function clearHistory(){if(confirm('Effacer tout l\'historique ?')){S.history=[];save();renderHistory();}}
-
-// ═══════════════════════════════════════
-// SETTINGS
-// ═══════════════════════════════════════
-function renderSettings(){
-  let html=`
-  <div class="settings-section">
-    <div class="settings-title">Programme</div>
-    <div class="setting-row">
-      <div><div class="setting-label">Semaine en cours</div><div class="setting-sub">1 → 10</div></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="s-btn" onclick="adjWeek(-1)">−</div>
-        <div class="s-num" id="s-week">${S.week}</div>
-        <div class="s-btn" onclick="adjWeek(1)">+</div>
-      </div>
-    </div>
-    <div class="setting-row" onclick="resetProg()">
-      <div><div class="setting-label">Réinitialiser le cycle</div><div class="setting-sub">Remet toutes les séances à "À faire"</div></div>
-      <span style="color:var(--txt3)">›</span>
-    </div>
-  </div>
-
-  <div class="div"></div>
-
-  <div class="settings-section">
-    <div class="settings-title">Minuteur repos</div>
-    <div class="setting-row">
-      <div><div class="setting-label">Durée par défaut</div></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="s-btn" onclick="adjTimer(-15)">−</div>
-        <div class="s-num" id="s-timer">${fmtTimer(S.timerDuration)}</div>
-        <div class="s-btn" onclick="adjTimer(15)">+</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="div"></div>
-
-  <div class="settings-section" id="lieu-section">
-    <div class="settings-title">Lieux d'entraînement</div>
-    <div class="lieu-edit-list" id="lieu-edit-list"></div>
-    <div class="lieu-add-row">
-      <input class="lieu-add-input" id="new-lieu-input" placeholder="Nom du lieu (ex: MAISON AMI)" maxlength="20">
-      <button class="lieu-add-btn" onclick="addLieu()">+ Ajouter</button>
-    </div>
-  </div>
-
-  <div class="div"></div>
-
-  <div class="settings-section">
-    <div class="settings-title">Poids par exercice</div>
-    <div style="font-size:11px;color:var(--txt3);margin-bottom:10px;padding:0 2px">Poids S1 par lieu · Incrément/semaine</div>`;
-
-  Object.entries(S.poids).forEach(([name,vals])=>{
-    html+=`<div class="ex-edit-card">
-      <div class="ex-edit-name">${name}</div>
-      <div class="ex-edit-fields">
-        ${['HOME','BUREAU','PA','inc'].map(f=>`<div class="field-group">
-          <span class="field-lbl">${f==='inc'?'INC':f}</span>
-          <input class="field-inp" type="number" value="${vals[f]||0}"
-            onchange="updatePoids('${name}','${f}',this.value)" inputmode="decimal">
-        </div>`).join('')}
-      </div>
-    </div>`;
-  });
-
-  html+=`</div>
-  <div class="div"></div>
-  <div class="settings-section">
-    <div class="settings-title">Remise à zéro</div>
-    <div class="setting-row" onclick="resetPoids()">
-      <div><div class="setting-label">Poids par défaut</div><div class="setting-sub">Annule toutes tes modifications</div></div>
-      <span style="color:var(--txt3)">›</span>
-    </div>
-  </div>`;
-
-  document.getElementById('settings-content').innerHTML=html;
-  renderLieuEditList();
+  showCatHint();
+  document.getElementById('modalFacture').classList.add('open');
 }
 
-function renderLieuEditList(){
-  const el=document.getElementById('lieu-edit-list');
-  if(!el) return;
-  el.innerHTML=S.lieux.map((l,i)=>`
-    <div class="lieu-edit-row">
-      <span style="font-size:12px;color:var(--txt3)">📍</span>
-      <input class="lieu-edit-input" value="${l}" onchange="renameLieu(${i},this.value)">
-      ${S.lieux.length>1?`<button class="lieu-edit-del" onclick="deleteLieu(${i})">×</button>`:''}
-    </div>`).join('');
+function closeFacture() {
+  document.getElementById('modalFacture').classList.remove('open');
+  editingId = null;
 }
 
-function addLieu(){
-  const input=document.getElementById('new-lieu-input');
-  const val=input.value.trim().toUpperCase();
-  if(!val||S.lieux.includes(val)) return;
-  S.lieux.push(val);
-  input.value='';
-  save();renderLieuEditList();renderLieuScroll();
-  showToast(val+' ajouté ✓');
-}
-function deleteLieu(i){
-  const l=S.lieux[i];
-  if(S.lieux.length<=1){showToast('Au moins 1 lieu requis');return;}
-  S.lieux.splice(i,1);
-  if(S.lieu===l) S.lieu=S.lieux[0];
-  save();renderLieuEditList();renderLieuScroll();
-}
-function renameLieu(i,val){
-  const clean=val.trim().toUpperCase();
-  if(!clean) return;
-  S.lieux[i]=clean;
-  if(S.lieu===S.lieux[i]) S.lieu=clean;
-  save();renderLieuScroll();
+function saveFacture() {
+  const f = {
+    id: editingId || Date.now().toString(),
+    cat: val('fCat'),
+    date: val('fDate'),
+    montant: numVal('fMontant'),
+    desc: val('fDesc'),
+    fournisseur: val('fFournisseur'),
+    notes: val('fNotes'),
+    justif: document.getElementById('fJustif').checked
+  };
+  if (!f.montant) { alert('Renseignez un montant.'); return; }
+  DATA.factures = DATA.factures || [];
+  if (editingId) {
+    const i = DATA.factures.findIndex(x => x.id === editingId);
+    if (i >= 0) DATA.factures[i] = f;
+  } else DATA.factures.push(f);
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  closeFacture();
+  refresh();
+  renderFacturesList();
 }
 
-function fmtTimer(s){return Math.floor(s/60)+"'"+String(s%60).padStart(2,'0')+'"';}
-function adjWeek(d){S.week=Math.max(1,Math.min(10,S.week+d));document.getElementById('s-week').textContent=S.week;document.getElementById('wkNum').textContent=S.week;save();}
-function adjTimer(d){
-  S.timerDuration=Math.max(15,Math.min(600,S.timerDuration+d));
-  timerTotal=S.timerDuration;timerRemaining=S.timerDuration;
-  document.getElementById('s-timer').textContent=fmtTimer(S.timerDuration);
-  updateTimerDisplay();save();
+function delFacture(id) {
+  if (!confirm('Supprimer ?')) return;
+  DATA.factures = (DATA.factures || []).filter(x => x.id !== id);
+  localStorage.setItem(KEY, JSON.stringify(DATA));
+  refresh();
+  renderFacturesList();
 }
-function updatePoids(name,field,val){if(!S.poids[name])S.poids[name]={};S.poids[name][field]=parseFloat(val)||0;save();}
-function resetPoids(){if(confirm('Remettre tous les poids par défaut ?')){S.poids=JSON.parse(JSON.stringify(DEFAULT_POIDS));save();renderSettings();showToast('Poids réinitialisés ✓');}}
-function resetProg(){if(confirm('Réinitialiser le cycle ?')){S.sessionDone={};S.exDone={};S.perf={};S.derog={};save();showToast('Cycle réinitialisé ✓');}}
 
-// ═══════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════
-function setLieu(l){S.lieu=l;save();renderHome();}
-function changeWeek(d){S.week=Math.max(1,Math.min(10,S.week+d));save();renderHome();}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+let currentCat = 'all';
+function renderFacturesList() {
+  const el = document.getElementById('facturesList');
+  const list = (DATA.factures || []).filter(f => currentCat === 'all' || f.cat === currentCat);
+  el.innerHTML = list.length === 0
+    ? '<div class="empty">Aucune écriture. Cliquez sur <strong>+ Nouvelle écriture</strong>.</div>'
+    : list.sort((a,b) => (b.date || '').localeCompare(a.date || '')).map(f => renderFacture(f)).join('');
+}
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
-load();
-timerTotal=S.timerDuration;
-timerRemaining=S.timerDuration;
-updateTimerDisplay();
-renderHome();
+function fmt(n) { return (Math.round(n) || 0).toLocaleString('fr-FR') + ' €'; }
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'monimpot_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function importData(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      DATA = JSON.parse(r.result);
+      if (!DATA.planning) DATA.planning = {};
+      localStorage.setItem(KEY, JSON.stringify(DATA));
+      loadForm();
+      refresh();
+      renderFacturesList();
+      renderCalendar();
+      alert('Importé.');
+    } catch(err) { alert('Fichier invalide.'); }
+  };
+  r.readAsText(f);
+}
+
+function wipeData() {
+  if (!confirm('Effacer toutes vos données ?')) return;
+  if (!confirm('Confirmez.')) return;
+  DATA = { profil:{}, revenus:{}, factures:[], checklist:{}, planning:{} };
+  localStorage.removeItem(KEY);
+  location.reload();
+}
+
+function exportRecap() {
+  const parts = calculerParts();
+  const revenu = (DATA.revenus.solde || 0) + (DATA.revenus.conjoint || 0) + (DATA.revenus.pre || 0);
+  const parCat = {};
+  (DATA.factures || []).forEach(f => { parCat[f.cat] = (parCat[f.cat] || 0) + (f.montant || 0); });
+  const tmi = getTMI(revenu, parts);
+  const totalRepas = calculerRepasAnnee();
+  const montantRepas = totalRepas * REPAS_FORFAIT;
+  const fraisReels = (parCat.materiel || 0) + (parCat.demenagement || 0) + montantRepas;
+
+  let txt = `RÉCAPITULATIF FISCAL — MonImpôt\n${new Date().toLocaleDateString('fr-FR')}\n\n═══════════════════════════════════════\n\nPROFIL\nSituation : ${DATA.profil.situation || '—'}\nEnfants : ${DATA.profil.enfants || 0}\nParts : ${parts}\nGrade : ${DATA.profil.statut || '—'}\n\n`;
+  txt += `REVENUS IMPOSABLES\nSolde : ${fmt(DATA.revenus.solde || 0)}\nConjoint : ${fmt(DATA.revenus.conjoint || 0)}\nPRE (0XX) : ${fmt(DATA.revenus.pre || 0)}\nSCPI : ${fmt(DATA.revenus.scpi || 0)}\nPEA imposable : ${fmt(DATA.revenus.pea || 0)}\n\n`;
+  txt += `EXONÉRÉES (mémoire)\nICM : ${fmt(DATA.revenus.icm || 0)}\nIJAT : ${fmt(DATA.revenus.ijat || 0)}\nISSE/OPEX : ${fmt((DATA.revenus.isse || 0) + (DATA.revenus.opex || 0))}\n\n`;
+  txt += `PLANNING ${DATA.profil.year || 2025}\nRepas gamelle déductibles : ${totalRepas}\nMontant : ${fmt(montantRepas)}\n\n`;
+  txt += `FRAIS RÉELS (${fmt(fraisReels)})\nMatériel : ${fmt(parCat.materiel || 0)}\nRepas : ${fmt(montantRepas)}\nDéménagement : ${fmt(parCat.demenagement || 0)}\n\n`;
+  txt += `RÉDUCTIONS & CRÉDITS\nDons : ${fmt(parCat.don || 0)} → ${fmt((parCat.don || 0) * 0.66)}\nGarde : ${fmt(parCat.garde || 0)} → ${fmt((parCat.garde || 0) * 0.5)}\nServices dom. : ${fmt(parCat.services || 0)} → ${fmt((parCat.services || 0) * 0.5)}\nPension : ${fmt(parCat.pension || 0)}\nPER : ${fmt(parCat.per || 0)}\nPME : ${fmt(parCat.pme || 0)} → ${fmt((parCat.pme || 0) * 0.18)}\n\n`;
+  txt += `TMI : ${Math.round(tmi * 100)} %\n`;
+
+  const blob = new Blob([txt], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'recap_' + new Date().toISOString().slice(0,10) + '.txt';
+  a.click();
+}
+
+// NAVIGATION
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-' + tab.dataset.page).classList.add('active');
+    if (tab.dataset.page === 'factures') renderFacturesList();
+    if (tab.dataset.page === 'planning') renderCalendar();
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
+});
+
+document.querySelectorAll('.cat-tab').forEach(ct => {
+  ct.onclick = () => {
+    document.querySelectorAll('.cat-tab').forEach(c => c.classList.remove('active'));
+    ct.classList.add('active');
+    currentCat = ct.dataset.cat;
+    renderFacturesList();
+  };
+});
+
+// Anti-zoom iOS
+let lastTouch = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - lastTouch <= 300) e.preventDefault();
+  lastTouch = now;
+}, {passive:false});
+
+// Init
+loadForm();
+refresh();
+renderFacturesList();
+renderCalendar();
+
+const now = new Date();
+document.getElementById('yearBadge').innerHTML = `Exercice <strong>${now.getFullYear()}</strong>`;
 </script>
 </body>
 </html>
